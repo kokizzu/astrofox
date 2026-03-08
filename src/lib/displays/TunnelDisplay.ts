@@ -1,0 +1,143 @@
+import Display from "@/lib/core/Display";
+
+export default class TunnelDisplay extends Display {
+	static config = {
+		name: "TunnelDisplay",
+		description: "Displays a moving tunnel grid.",
+		type: "display",
+		label: "Tunnel",
+		defaultProperties: {
+			color: "#D6ECFF",
+			backgroundColor: "#02060A",
+			opacity: 1.0,
+			radius: 180,
+			depth: 3200,
+			curvature: 32,
+			turnRate: 2.6,
+			travelSpeed: 6,
+			turnSpeed: 0.8,
+			bank: 8,
+			gridColumns: 28,
+			gridRows: 48,
+			lineWidth: 0.08,
+			radialSegments: 40,
+			lengthSegments: 128,
+		},
+		controls: {
+			color: {
+				label: "Line Color",
+				type: "color",
+			},
+			backgroundColor: {
+				label: "Background",
+				type: "color",
+			},
+			radius: {
+				label: "Radius",
+				type: "number",
+				min: 60,
+				max: 420,
+				withRange: true,
+			},
+			depth: {
+				label: "Depth",
+				type: "number",
+				min: 600,
+				max: 6000,
+				withRange: true,
+			},
+			gridColumns: {
+				label: "Grid Columns",
+				type: "number",
+				min: 6,
+				max: 64,
+				step: 1,
+				withRange: true,
+			},
+			gridRows: {
+				label: "Grid Rows",
+				type: "number",
+				min: 6,
+				max: 128,
+				step: 1,
+				withRange: true,
+			},
+			lineWidth: {
+				label: "Line Width",
+				type: "number",
+				min: 0.01,
+				max: 0.25,
+				step: 0.001,
+				withRange: true,
+			},
+			radialSegments: {
+				label: "Radial Detail",
+				type: "number",
+				min: 8,
+				max: 96,
+				step: 1,
+				withRange: true,
+			},
+			lengthSegments: {
+				label: "Length Detail",
+				type: "number",
+				min: 16,
+				max: 256,
+				step: 1,
+				withRange: true,
+			},
+			curvature: {
+				label: "Curvature",
+				type: "number",
+				min: 0,
+				max: 280,
+				withRange: true,
+			},
+			turnRate: {
+				label: "Turn Rate",
+				type: "number",
+				min: 0.5,
+				max: 8,
+				step: 0.01,
+				withRange: true,
+			},
+			travelSpeed: {
+				label: "Travel Speed",
+				type: "number",
+				min: 0,
+				max: 10,
+				step: 0.01,
+				withRange: true,
+			},
+			turnSpeed: {
+				label: "Turn Speed",
+				type: "number",
+				min: -3,
+				max: 3,
+				step: 0.01,
+				withRange: true,
+			},
+			bank: {
+				label: "Bank",
+				type: "number",
+				min: -30,
+				max: 30,
+				step: 0.01,
+				withRange: true,
+			},
+			opacity: {
+				label: "Opacity",
+				type: "number",
+				min: 0,
+				max: 1.0,
+				step: 0.01,
+				withRange: true,
+				withReactor: true,
+			},
+		},
+	};
+
+	constructor(properties?: Record<string, unknown>) {
+		super(TunnelDisplay, properties);
+	}
+}

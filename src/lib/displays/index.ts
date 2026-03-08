@@ -4,5 +4,6 @@ export { default as ImageDisplay } from "./ImageDisplay";
 export { default as ShapeDisplay } from "./ShapeDisplay";
 export { default as SoundWaveDisplay } from "./SoundWaveDisplay";
 export { default as TextDisplay } from "./TextDisplay";
+export { default as TunnelDisplay } from "./TunnelDisplay";
 export { default as VideoDisplay } from "./VideoDisplay";
 export { default as WaveSpectrumDisplay } from "./WaveSpectrumDisplay";

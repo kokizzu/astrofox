@@ -1,3 +1,8 @@
-export { GeometryDisplayLayer, createGeometryNode, getMaterialNode } from "./GeometryDisplayLayer";
+export {
+	GeometryDisplayLayer,
+	createGeometryNode,
+	getMaterialNode,
+} from "./GeometryDisplayLayer";
 export { GeometryDisplayLayer3D } from "./GeometryDisplayLayer3D";
 export { PerspectiveScene3D } from "./PerspectiveScene3D";
+export { TunnelDisplayLayer3D } from "./TunnelDisplayLayer3D";

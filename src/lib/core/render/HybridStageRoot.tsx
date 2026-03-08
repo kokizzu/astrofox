@@ -3,7 +3,11 @@ import { BLANK_IMAGE } from "@/app/constants";
 import { useFrame } from "@react-three/fiber";
 import React from "react";
 import { SceneWithEffects } from "./effects";
-import { GeometryDisplayLayer3D, PerspectiveScene3D } from "./geometry";
+import {
+	GeometryDisplayLayer3D,
+	PerspectiveScene3D,
+	TunnelDisplayLayer3D,
+} from "./geometry";
 import {
 	BarSpectrumDisplayLayer,
 	ImageDisplayLayer,
@@ -143,6 +147,22 @@ export default function HybridStageRoot({
 							key={display.id}
 							display={display}
 							order={order}
+							frameData={frameData}
+							sceneOpacity={1}
+							sceneBlendMode="Normal"
+							sceneMask={false}
+							sceneInverse={false}
+						/>,
+					);
+					break;
+				case "TunnelDisplay":
+					if (scene3D.length === 0) scene3DOrder = order;
+					scene3D.push(
+						<TunnelDisplayLayer3D
+							key={display.id}
+							display={display}
+							order={order}
+							height={height}
 							frameData={frameData}
 							sceneOpacity={1}
 							sceneBlendMode="Normal"

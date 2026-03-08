@@ -41,7 +41,7 @@ const DISPLAY_CATEGORIES = [
 	},
 	{
 		label: "3D",
-		displays: ["Geometry (3D)"],
+		displays: ["Geometry", "Tunnel"],
 	},
 ];
 
