@@ -39,7 +39,7 @@ export function createRawEffect(effectConfig, width, height) {
 
 	switch (effectConfig.name) {
 		case "BloomEffect": {
-			return new PPUnrealBloomPass({
+			const pass = new PPUnrealBloomPass({
 				width,
 				height,
 				exposure: Number(props.exposure ?? 1),
@@ -47,6 +47,17 @@ export function createRawEffect(effectConfig, width, height) {
 				radius: Number(props.radius ?? 0),
 				threshold: Number(props.threshold ?? 0),
 			});
+			pass.__updateScenePass = () => {
+				pass.enabled = effectConfig.enabled !== false;
+				pass.updateOptions({
+					exposure: Number(props.exposure ?? 1),
+					strength: Number(props.strength ?? 1.5),
+					radius: Number(props.radius ?? 0),
+					threshold: Number(props.threshold ?? 0),
+				});
+			};
+			pass.__updateScenePass();
+			return pass;
 		}
 		case "PixelateEffect": {
 			const size = Number(props.size || 10);

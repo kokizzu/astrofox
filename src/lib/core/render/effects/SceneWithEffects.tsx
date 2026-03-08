@@ -17,6 +17,56 @@ import { PassChain } from "../PassChain";
 import { createRawEffect } from "./createRawEffect";
 import { createScenePass } from "./createScenePass";
 
+const LIVE_UPDATABLE_EFFECTS = new Set([
+	"BloomEffect",
+	"BlurEffect",
+	"ColorHalftoneEffect",
+	"DistortionEffect",
+	"DotScreenEffect",
+	"GlitchEffect",
+	"KaleidoscopeEffect",
+	"LEDEffect",
+	"MirrorEffect",
+	"NoiseEffect",
+	"PerlinNoiseEffect",
+	"PixelateEffect",
+	"RGBShiftEffect",
+]);
+
+const STRUCTURAL_EFFECT_PROPS = {
+	BlurEffect: ["type"],
+	PixelateEffect: ["type"],
+};
+
+function getEffectBuildKey(effect) {
+	const base = {
+		id: effect.id,
+		name: effect.name,
+	};
+
+	if (!LIVE_UPDATABLE_EFFECTS.has(effect.name)) {
+		return {
+			...base,
+			properties: effect.properties,
+		};
+	}
+
+	const structuralKeys = STRUCTURAL_EFFECT_PROPS[effect.name] || [];
+	if (structuralKeys.length === 0) {
+		return base;
+	}
+
+	const structuralProps = {};
+	for (const key of structuralKeys) {
+		structuralProps[key] = effect.properties?.[key];
+	}
+
+	return {
+		...base,
+		properties: structuralProps,
+	};
+}
+
 export function SceneWithEffects({
 	width,
 	height,
@@ -81,10 +131,8 @@ export function SceneWithEffects({
 		};
 	}, []);
 
-	// Rebuild passes when effect list or properties change
-	const effectKey = JSON.stringify(
-		effects.map((e) => ({ id: e.id, name: e.name, properties: e.properties })),
-	);
+	// Rebuild passes when effect list or structural properties change
+	const effectKey = JSON.stringify(effects.map(getEffectBuildKey));
 	const passesRef = React.useRef([]);
 	const rawEffectsRef = React.useRef([]);
 	React.useEffect(() => {

@@ -8,7 +8,7 @@ export default class BloomEffect extends Effect {
 		label: "Bloom",
 		defaultProperties: {
 			exposure: 1,
-			strength: 1.5,
+			strength: 0.5,
 			radius: 0,
 			threshold: 0,
 		},

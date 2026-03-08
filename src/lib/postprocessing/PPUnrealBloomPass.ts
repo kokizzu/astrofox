@@ -13,21 +13,37 @@ export class PPUnrealBloomPass extends Pass {
 		threshold = 0,
 	} = {}) {
 		super("PPUnrealBloomPass");
-		const exposureScale = Math.max(0, Number(exposure ?? 1)) ** 4;
-		const mappedStrength = Number(strength ?? 1.5) * exposureScale;
 
 		this.unrealBloomPass = new UnrealBloomPass(
 			new Vector2(
 				Math.max(1, Math.floor(Number(width || 1))),
 				Math.max(1, Math.floor(Number(height || 1))),
 			),
-			mappedStrength,
+			0,
 			Number(radius ?? 0),
 			Number(threshold ?? 0),
 		);
+		this.updateOptions({
+			exposure,
+			strength,
+			radius,
+			threshold,
+		});
 
 		// UnrealBloomPass composites into the read buffer and doesn't require swap.
 		this.needsSwap = false;
+	}
+
+	updateOptions({
+		exposure = 1,
+		strength = 1.5,
+		radius = 0,
+		threshold = 0,
+	} = {}) {
+		const exposureScale = Math.max(0, Number(exposure ?? 1)) ** 4;
+		this.unrealBloomPass.strength = Number(strength ?? 1.5) * exposureScale;
+		this.unrealBloomPass.radius = Number(radius ?? 0);
+		this.unrealBloomPass.threshold = Number(threshold ?? 0);
 	}
 
 	render(renderer, inputBuffer, outputBuffer, deltaTime, stencilTest) {
