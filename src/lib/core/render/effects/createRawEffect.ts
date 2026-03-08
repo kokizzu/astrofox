@@ -16,7 +16,6 @@ import {
 	BlendFunction,
 	GlitchMode,
 	ASCIIEffect as RawASCIIEffect,
-	BloomEffect as RawBloomEffect,
 	BrightnessContrastEffect as RawBrightnessContrastEffect,
 	ColorAverageEffect as RawColorAverageEffect,
 	ColorDepthEffect as RawColorDepthEffect,
@@ -40,18 +39,6 @@ export function createRawEffect(effectConfig, width, height) {
 
 	switch (effectConfig.name) {
 		case "BloomEffect": {
-			const amount = Number(props.amount ?? 0);
-			const threshold = Number(props.threshold ?? 1);
-			const blendMode =
-				props.blendMode === "Screen" ? BlendFunction.SCREEN : BlendFunction.ADD;
-			return new RawBloomEffect({
-				intensity: amount * 10,
-				luminanceThreshold: threshold,
-				luminanceSmoothing: 0.025,
-				blendFunction: blendMode,
-			});
-		}
-		case "UnrealBloomEffect":
 			return new PPUnrealBloomPass({
 				width,
 				height,
@@ -60,6 +47,7 @@ export function createRawEffect(effectConfig, width, height) {
 				radius: Number(props.radius ?? 0),
 				threshold: Number(props.threshold ?? 0),
 			});
+		}
 		case "PixelateEffect": {
 			const size = Number(props.size || 10);
 			const type = props.type || "Square";

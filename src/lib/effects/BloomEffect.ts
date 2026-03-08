@@ -1,7 +1,5 @@
 import Effect from "@/lib/core/Effect";
 
-const blendOptions = ["Add", "Screen"];
-
 export default class BloomEffect extends Effect {
 	static config = {
 		name: "BloomEffect",
@@ -9,21 +7,35 @@ export default class BloomEffect extends Effect {
 		type: "effect",
 		label: "Bloom",
 		defaultProperties: {
-			blendMode: "Screen",
-			amount: 0.1,
-			threshold: 1.0,
+			exposure: 1,
+			strength: 1.5,
+			radius: 0,
+			threshold: 0,
 		},
 		controls: {
-			blendMode: {
-				label: "Blend Mode",
-				type: "select",
-				items: blendOptions,
-			},
-			amount: {
-				label: "Amount",
+			exposure: {
+				label: "Exposure",
 				type: "number",
 				min: 0,
-				max: 1.0,
+				max: 2,
+				step: 0.01,
+				withRange: true,
+				withReactor: true,
+			},
+			strength: {
+				label: "Strength",
+				type: "number",
+				min: 0,
+				max: 3,
+				step: 0.01,
+				withRange: true,
+				withReactor: true,
+			},
+			radius: {
+				label: "Radius",
+				type: "number",
+				min: 0,
+				max: 1,
 				step: 0.01,
 				withRange: true,
 				withReactor: true,
@@ -32,7 +44,7 @@ export default class BloomEffect extends Effect {
 				label: "Threshold",
 				type: "number",
 				min: 0,
-				max: 1.0,
+				max: 1,
 				step: 0.01,
 				withRange: true,
 				withReactor: true,

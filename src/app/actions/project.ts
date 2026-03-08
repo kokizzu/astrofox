@@ -1,10 +1,3 @@
-// @ts-nocheck
-import AudioReactor from "@/lib/audio/AudioReactor";
-import Display from "@/lib/core/Display";
-import Entity from "@/lib/core/Entity";
-import Scene from "@/lib/core/Scene";
-import Stage from "@/lib/core/Stage";
-import { resetLabelCount } from "@/lib/utils/controls";
 import { raiseError } from "@/app/actions/error";
 import { showModal } from "@/app/actions/modals";
 import { loadReactors, resetReactors } from "@/app/actions/reactors";
@@ -21,6 +14,13 @@ import {
 	DEFAULT_CANVAS_WIDTH,
 } from "@/app/constants";
 import { api, env, library, logger, reactors, stage } from "@/app/global";
+// @ts-nocheck
+import AudioReactor from "@/lib/audio/AudioReactor";
+import Display from "@/lib/core/Display";
+import Entity from "@/lib/core/Entity";
+import Scene from "@/lib/core/Scene";
+import Stage from "@/lib/core/Stage";
+import { resetLabelCount } from "@/lib/utils/controls";
 import create from "zustand";
 
 export const DEFAULT_PROJECT_NAME = "Untitled Project";
@@ -483,7 +483,12 @@ function setUnresolvedMediaRefs(mediaRefs = []) {
 function sanitizeFileName(name) {
 	return (name || "")
 		.trim()
-		.replace(/[<>:\"/\\|?*\x00-\x1F]/g, "-")
+		.split("")
+		.map((char) => {
+			const code = char.charCodeAt(0);
+			return /[<>:\"/\\|?*]/.test(char) || code < 32 ? "-" : char;
+		})
+		.join("")
 		.replace(/\s+/g, " ")
 		.trim();
 }
