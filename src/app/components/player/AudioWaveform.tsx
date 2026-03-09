@@ -201,10 +201,16 @@ export default function AudioWaveform() {
 
 	return (
 		<div
-			className={classNames({
-				"min-w-[56rem] relative bg-neutral-900 border-t border-t-neutral-800 shadow-[inset_0_0_40px_rgba(0,_0,_0,_0.5)] max-h-64 transition-[max-height_0.2s_ease-out] overflow-hidden": true,
-				"hidden max-h-0 transition-[max-height_0.2s_ease-in]": !hasAudio,
-			})}
+			aria-hidden={!hasAudio}
+			className={classNames(
+				"min-w-[56rem] relative overflow-hidden bg-neutral-900 shadow-[inset_0_0_40px_rgba(0,_0,_0,_0.5)] transition-[max-height,transform,opacity,border-color] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+				{
+					"max-h-64 translate-y-0 opacity-100 border-t border-t-neutral-800":
+						hasAudio,
+					"pointer-events-none max-h-0 translate-y-4 opacity-0 border-t border-t-transparent":
+						!hasAudio,
+				},
+			)}
 		>
 			<div
 				className="relative mx-auto mt-5"

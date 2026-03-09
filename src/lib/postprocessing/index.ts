@@ -8,4 +8,5 @@ export { PPKaleidoscopeEffect } from "./PPKaleidoscopeEffect";
 export { PPLEDEffect } from "./PPLEDEffect";
 export { PPMirrorEffect } from "./PPMirrorEffect";
 export { PPRGBShiftEffect } from "./PPRGBShiftEffect";
+export { PPTiltShiftEffect } from "./PPTiltShiftEffect";
 export { PPUnrealBloomPass } from "./PPUnrealBloomPass";

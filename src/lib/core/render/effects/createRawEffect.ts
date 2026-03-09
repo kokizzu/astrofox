@@ -10,6 +10,7 @@ import {
 	PPLEDEffect,
 	PPMirrorEffect,
 	PPRGBShiftEffect,
+	PPTiltShiftEffect,
 	PPUnrealBloomPass,
 } from "@/lib/postprocessing";
 import {
@@ -27,7 +28,6 @@ import {
 	PixelationEffect as RawPixelationEffect,
 	ScanlineEffect as RawScanlineEffect,
 	SepiaEffect as RawSepiaEffect,
-	TiltShiftEffect as RawTiltShiftEffect,
 	ToneMappingEffect as RawToneMappingEffect,
 	VignetteEffect as RawVignetteEffect,
 } from "postprocessing";
@@ -210,7 +210,7 @@ export function createRawEffect(effectConfig, width, height) {
 				invert: !!props.invert,
 			});
 		case "TiltShiftEffect":
-			return new RawTiltShiftEffect({
+			return new PPTiltShiftEffect({
 				blur: Number(props.blur ?? 0.15),
 				taper: Number(props.taper ?? 0.5),
 				samples: Number(props.samples ?? 10),

@@ -345,7 +345,7 @@ export default function TitleBar() {
 							size="icon-sm"
 							className={`${
 								button.isVisible
-									? "bg-neutral-800 text-neutral-400"
+									? "bg-transparent text-neutral-400"
 									: "bg-transparent text-neutral-500"
 							} hover:bg-neutral-800 hover:text-neutral-100`}
 							aria-label={button.label}
@@ -367,4 +367,3 @@ export default function TitleBar() {
 		</div>
 	);
 }
-
