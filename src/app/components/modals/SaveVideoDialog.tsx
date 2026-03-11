@@ -225,7 +225,7 @@ export default function SaveVideoDialog({
 								value={selectedStartTime}
 								min={0}
 								max={totalDuration}
-								width={220}
+								width="100%"
 								disabled={totalDuration <= 0}
 								onChange={(_name, value) => setSelectedStartTime(value)}
 							/>
@@ -242,7 +242,7 @@ export default function SaveVideoDialog({
 								value={selectedEndTime}
 								min={0}
 								max={totalDuration}
-								width={220}
+								width="100%"
 								disabled={totalDuration <= 0}
 								onChange={(_name, value) => setSelectedEndTime(value)}
 							/>

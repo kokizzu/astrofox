@@ -1,12 +1,12 @@
+import TextInput from "@/app/components/inputs/TextInput";
 import { formatSeekTime, parseSeekTime } from "@/lib/utils/format";
 import { clamp } from "@/lib/utils/math";
-import TextInput from "@/app/components/inputs/TextInput";
 import React, { useState } from "react";
 
 interface TimeInputProps {
 	name?: string;
 	value?: number;
-	width?: number;
+	width?: number | string;
 	size?: number | null;
 	min?: number;
 	max?: number;
