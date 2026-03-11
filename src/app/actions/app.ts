@@ -1,4 +1,4 @@
-import { openAudioFile } from "@/app/actions/audio";
+import audioStore, { loadAudioFile, openAudioFile } from "@/app/actions/audio";
 import { raiseError } from "@/app/actions/error";
 import { showModal } from "@/app/actions/modals";
 import {
@@ -62,6 +62,7 @@ interface StartVideoRecordingOptions {
 	startTime?: number;
 	endTime?: number;
 	includeAudio?: boolean;
+	audioSource?: File | null;
 }
 
 interface CaptureStreamCanvas {
@@ -86,7 +87,9 @@ type LibraryModule = {
 	config: PluginConfig;
 };
 
-type LibraryConstructor = (new (properties?: Record<string, unknown>) => unknown) &
+type LibraryConstructor = (new (
+	properties?: Record<string, unknown>,
+) => unknown) &
 	LibraryModule;
 
 type PluginDescriptor = {
@@ -147,16 +150,10 @@ function getExtensionFromMimeType(mimeType: string): string {
 function getVideoRecordingSetup(): {
 	canvas: CaptureStreamCanvas;
 	mimeType: string;
-	totalDuration: number;
 	extension: string;
 } | null {
 	if (activeVideoRecorder && activeVideoRecorder.state === "recording") {
 		raiseError("A video recording is already in progress.");
-		return null;
-	}
-
-	if (!player.hasAudio()) {
-		raiseError("Load an audio track before saving video.");
 		return null;
 	}
 
@@ -182,17 +179,9 @@ function getVideoRecordingSetup(): {
 		return null;
 	}
 
-	const totalDuration = player.getDuration();
-
-	if (!Number.isFinite(totalDuration) || totalDuration <= 0) {
-		raiseError("Failed to determine audio duration for video recording.");
-		return null;
-	}
-
 	return {
 		canvas,
 		mimeType,
-		totalDuration,
 		extension: getExtensionFromMimeType(mimeType),
 	};
 }
@@ -265,17 +254,26 @@ export async function saveVideo() {
 		return;
 	}
 
+	const audioState = audioStore.getState() as {
+		file?: string;
+		source?: File | null;
+		duration?: number;
+	};
+	const totalDuration = Number(audioState.duration ?? 0);
+
 	showModal(
 		"SaveVideoDialog",
-		{ title: "Save video" },
+		{ title: "Save video", showCloseButton: false },
 		{
 			fileHandle: null,
 			filePath: "",
 			defaultPath: `video-${Date.now()}.${setup.extension}`,
 			extension: setup.extension,
-			totalDuration: setup.totalDuration,
+			audioSource: audioState.source ?? null,
+			audioFileName: audioState.file ?? "",
+			totalDuration,
 			startTime: 0,
-			endTime: setup.totalDuration,
+			endTime: totalDuration,
 			includeAudio: true,
 		},
 	);
@@ -319,18 +317,32 @@ export async function startVideoRecording({
 	startTime = 0,
 	endTime,
 	includeAudio = true,
+	audioSource = null,
 }: StartVideoRecordingOptions): Promise<boolean> {
+	if (audioSource) {
+		await loadAudioFile(audioSource, false);
+	}
+
 	const setup = getVideoRecordingSetup();
 
 	if (!setup) {
 		return false;
 	}
 
+	if (!player.hasAudio()) {
+		raiseError("Choose an audio track before saving video.");
+		return false;
+	}
+
+	const totalDuration = player.getDuration();
+
+	if (!Number.isFinite(totalDuration) || totalDuration <= 0) {
+		raiseError("Failed to determine audio duration for video recording.");
+		return false;
+	}
+
 	const clampedStartTime = Math.max(0, startTime);
-	const clampedEndTime = Math.min(
-		setup.totalDuration,
-		endTime ?? setup.totalDuration,
-	);
+	const clampedEndTime = Math.min(totalDuration, endTime ?? totalDuration);
 
 	if (clampedEndTime <= clampedStartTime) {
 		raiseError("Video end time must be later than the start time.");
@@ -450,7 +462,7 @@ export async function startVideoRecording({
 
 		player.stop();
 		player.setLoop(false);
-		player.seek(clampedStartTime / setup.totalDuration);
+		player.seek(clampedStartTime / totalDuration);
 		player.on("stop", onPlayerStop);
 
 		recorder.start(RECORDING_TIMESLICE_MS);
@@ -556,9 +568,9 @@ export async function loadPlugins() {
 		api.getPlugins() as Record<string, PluginDescriptor>,
 	)) {
 		try {
-			const module = (await import(
-				/* webpackIgnore: true */ plugin.src
-			)) as { default: PluginModuleLike };
+			const module = (await import(/* webpackIgnore: true */ plugin.src)) as {
+				default: PluginModuleLike;
+			};
 
 			module.default.config.icon = plugin.icon;
 

@@ -127,7 +127,7 @@ export default function SceneLayer({
 		sectionRenderGroup: "2d" | "3d" | null = null,
 	) => (
 		<div className="flex flex-col gap-0.5">
-			<div className="ml-4 px-2 pt-1.5 pb-0.5 text-[10px] font-medium tracking-[0.18em] uppercase text-neutral-500">
+			<div className="ml-4 px-2 pt-1.5 pb-0.5 text-[10px] font-semibold uppercase text-neutral-400">
 				{title}
 			</div>
 			{layers.length > 0

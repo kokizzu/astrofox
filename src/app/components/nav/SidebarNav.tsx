@@ -1,5 +1,4 @@
-import useAppStore, { handleMenuAction } from "@/app/actions/app";
-import { player } from "@/app/global";
+import { handleMenuAction } from "@/app/actions/app";
 import { Button } from "@/components/ui/button";
 import {
 	Tooltip,
@@ -13,12 +12,12 @@ import {
 	FilePlus2,
 	FolderOpen,
 	Image,
+	type LucideIcon,
 	Save,
 	Settings2,
-	type LucideIcon,
 	Video,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 type MenuAction =
 	| "new-project"
@@ -63,11 +62,14 @@ const typedMenuConfig = menuConfig as MenuSection[];
 
 function getSidebarSections(): SidebarItem[][] {
 	return typedMenuConfig
-		.filter((section) => !section.hidden && ["File", "Edit"].includes(section.label))
+		.filter(
+			(section) => !section.hidden && ["File", "Edit"].includes(section.label),
+		)
 		.map((section) =>
 			(section.submenu || [])
-				.filter((item): item is MenuEntry & { label: string; action: MenuAction } =>
-					Boolean(item.label && item.action && ACTION_ICONS[item.action]),
+				.filter(
+					(item): item is MenuEntry & { label: string; action: MenuAction } =>
+						Boolean(item.label && item.action && ACTION_ICONS[item.action]),
 				)
 				.map((item) => ({
 					label: item.label,
@@ -79,44 +81,19 @@ function getSidebarSections(): SidebarItem[][] {
 }
 
 export default function SidebarNav() {
-	const [hasAudio, setHasAudio] = useState(() => player.hasAudio());
-	const isVideoRecording = useAppStore((state) => state.isVideoRecording);
 	const sections = getSidebarSections();
-
-	useEffect(() => {
-		const syncAudioAvailability = () => {
-			setHasAudio(player.hasAudio());
-		};
-
-		player.on("audio-load", syncAudioAvailability);
-		player.on("audio-unload", syncAudioAvailability);
-
-		return () => {
-			player.off("audio-load", syncAudioAvailability);
-			player.off("audio-unload", syncAudioAvailability);
-		};
-	}, []);
-
-	function isActionDisabled(action: MenuAction) {
-		if (action === "save-video") {
-			return !hasAudio || isVideoRecording;
-		}
-
-		return false;
-	}
 
 	return (
 		<TooltipProvider>
-			<aside className="flex w-14 shrink-0 flex-col items-center border-r border-neutral-800 bg-neutral-950/95 px-2 py-3">
+			<aside className="flex w-14 shrink-0 self-stretch flex-col items-center border-r border-neutral-700 px-2 py-3">
 				<div className="flex w-full flex-1 flex-col items-center gap-2">
 					{sections.map((section, sectionIndex) => (
-						<React.Fragment key={`section-${sectionIndex}`}>
+						<React.Fragment key={section.map((item) => item.action).join("-")}>
 							{sectionIndex > 0 ? (
 								<div className="my-1 h-px w-8 bg-neutral-800" />
 							) : null}
 							{section.map((item) => {
 								const Icon = item.icon;
-								const disabled = isActionDisabled(item.action);
 
 								return (
 									<Tooltip key={item.action}>
@@ -125,9 +102,8 @@ export default function SidebarNav() {
 												<Button
 													variant="ghost"
 													size="icon-sm"
-													className={`w-full bg-transparent text-neutral-400 ${disabled ? "cursor-not-allowed text-neutral-600" : "hover:bg-neutral-800 hover:text-neutral-100"}`}
+													className="w-full bg-transparent text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100"
 													aria-label={item.label}
-													disabled={disabled}
 													onClick={() => handleMenuAction(item.action)}
 												/>
 											}

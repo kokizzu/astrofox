@@ -7,7 +7,7 @@
 				"action": "new-project"
 			},
 			{
-				"label": "Open project...",
+				"label": "Open project",
 				"action": "open-project"
 			},
 			{
@@ -18,15 +18,15 @@
 				"type": "separator"
 			},
 			{
-				"label": "Load audio...",
+				"label": "Load audio",
 				"action": "load-audio"
 			},
 			{
-				"label": "Save image...",
+				"label": "Save image",
 				"action": "save-image"
 			},
 			{
-				"label": "Save video...",
+				"label": "Save video",
 				"action": "save-video"
 			}
 		]

@@ -1,13 +1,14 @@
 // @ts-nocheck
+import { analyzer, api, logger, player } from "@/app/global";
 import { loadAudioData } from "@/lib/utils/audio";
 import { trimChars } from "@/lib/utils/string";
-import { analyzer, api, logger, player } from "@/app/global";
 import create from "zustand";
 import appStore from "./app";
 import { raiseError } from "./error";
 
 export const initialState = {
 	file: "",
+	source: null,
 	duration: 0,
 	loading: false,
 	tags: null,
@@ -17,6 +18,36 @@ export const initialState = {
 const audioStore = create(() => ({
 	...initialState,
 }));
+
+const AUDIO_FILE_FILTERS = [
+	{
+		name: "audio files",
+		extensions: ["aac", "flac", "mp3", "m4a", "opus", "ogg", "wav"],
+	},
+];
+
+export async function inspectAudioFile(file: File) {
+	const data = await api.readAudioFile(file);
+	const audio = await loadAudioData(data);
+
+	return {
+		file,
+		name: file.name,
+		duration: audio.getDuration(),
+	};
+}
+
+export async function chooseAudioFile() {
+	const { files, canceled } = await api.showOpenDialog({
+		filters: AUDIO_FILE_FILTERS,
+	});
+
+	if (canceled || !files?.length) {
+		return null;
+	}
+
+	return files[0];
+}
 
 export async function loadAudioFile(file: File | string, play?: boolean) {
 	audioStore.setState({ loading: true });
@@ -63,7 +94,13 @@ export async function loadAudioFile(file: File | string, play?: boolean) {
 			appStore.setState({ statusText: trimChars(name) });
 		}
 
-		audioStore.setState({ file: name, duration, tags, loading: false });
+		audioStore.setState({
+			file: name,
+			source: file instanceof File ? file : null,
+			duration,
+			tags,
+			loading: false,
+		});
 	} catch (error) {
 		raiseError("Invalid audio file.", error);
 
@@ -73,12 +110,7 @@ export async function loadAudioFile(file: File | string, play?: boolean) {
 
 export async function openAudioFile(play?: boolean) {
 	const { files, canceled } = await api.showOpenDialog({
-		filters: [
-			{
-				name: "audio files",
-				extensions: ["aac", "flac", "mp3", "m4a", "opus", "ogg", "wav"],
-			},
-		],
+		filters: AUDIO_FILE_FILTERS,
 	});
 
 	if (!canceled && files && files.length) {

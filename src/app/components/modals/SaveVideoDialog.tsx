@@ -1,10 +1,11 @@
 import {
+	type FileHandleLike,
 	chooseVideoSaveLocation,
 	clearVideoExportSegment,
-	type FileHandleLike,
 	setVideoExportSegment,
 	startVideoRecording,
 } from "@/app/actions/app";
+import { chooseAudioFile, inspectAudioFile } from "@/app/actions/audio";
 import { raiseError } from "@/app/actions/error";
 import TimeInput from "@/app/components/inputs/TimeInput";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,8 @@ type SaveVideoDialogProps = {
 	filePath?: string;
 	defaultPath?: string;
 	extension?: string;
+	audioSource?: File | null;
+	audioFileName?: string;
 	totalDuration: number;
 	startTime?: number;
 	endTime?: number;
@@ -31,19 +34,27 @@ export default function SaveVideoDialog({
 	filePath: initialFilePath = "",
 	defaultPath: initialDefaultPath = "",
 	extension = "webm",
-	totalDuration,
+	audioSource: initialAudioSource = null,
+	audioFileName: initialAudioFileName = "",
+	totalDuration: initialTotalDuration,
 	startTime = 0,
-	endTime = totalDuration,
+	endTime = initialTotalDuration,
 	includeAudio = true,
 }: SaveVideoDialogProps) {
 	const [fileHandle, setFileHandle] = useState(initialFileHandle);
 	const [filePath, setFilePath] = useState(initialFilePath);
+	const [audioSource, setAudioSource] = useState<File | null>(
+		initialAudioSource,
+	);
+	const [audioFileName, setAudioFileName] = useState(initialAudioFileName);
+	const [totalDuration, setTotalDuration] = useState(initialTotalDuration);
 	const [selectedStartTime, setSelectedStartTime] = useState(startTime);
 	const [selectedEndTime, setSelectedEndTime] = useState(endTime);
 	const [shouldIncludeAudio, setShouldIncludeAudio] = useState(includeAudio);
 	const [validationMessage, setValidationMessage] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [isChoosingLocation, setIsChoosingLocation] = useState(false);
+	const [isChoosingAudio, setIsChoosingAudio] = useState(false);
 	const keepSegmentOverlayRef = useRef(false);
 
 	useEffect(() => {
@@ -57,6 +68,30 @@ export default function SaveVideoDialog({
 			}
 		};
 	}, []);
+
+	async function handleChooseAudio() {
+		setIsChoosingAudio(true);
+
+		try {
+			const file = await chooseAudioFile();
+
+			if (!file) {
+				return;
+			}
+
+			const audio = await inspectAudioFile(file);
+			setAudioSource(audio.file);
+			setAudioFileName(audio.name);
+			setTotalDuration(audio.duration);
+			setSelectedStartTime(0);
+			setSelectedEndTime(audio.duration);
+			setValidationMessage("");
+		} catch (error) {
+			raiseError("Failed to choose an audio file.", error);
+		} finally {
+			setIsChoosingAudio(false);
+		}
+	}
 
 	async function handleChooseLocation() {
 		setIsChoosingLocation(true);
@@ -85,6 +120,11 @@ export default function SaveVideoDialog({
 	}
 
 	async function handleSave() {
+		if (!audioFileName) {
+			setValidationMessage("Choose an audio file before starting the export.");
+			return;
+		}
+
 		if (!filePath && !fileHandle?.name) {
 			setValidationMessage(
 				"Choose a save location before starting the export.",
@@ -108,6 +148,7 @@ export default function SaveVideoDialog({
 				startTime: selectedStartTime,
 				endTime: selectedEndTime,
 				includeAudio: shouldIncludeAudio,
+				audioSource,
 			});
 
 			if (started) {
@@ -124,14 +165,32 @@ export default function SaveVideoDialog({
 			<div className="flex max-h-[60vh] flex-col gap-5 overflow-auto px-4 py-4">
 				<section className="space-y-2">
 					<div className="flex items-center justify-between gap-3">
-						<div>
-							<h3 className="text-sm font-medium text-neutral-100">
-								Save location
-							</h3>
-							<p className="text-xs text-neutral-400">
-								Choose where the rendered video will be saved.
-							</p>
-						</div>
+						<h3 className="text-sm font-medium text-neutral-100">
+							Audio source
+						</h3>
+						<Button
+							variant="outline"
+							size="sm"
+							disabled={isSubmitting || isChoosingAudio}
+							onClick={handleChooseAudio}
+						>
+							{isChoosingAudio ? "Choosing..." : "Choose"}
+						</Button>
+					</div>
+					<input
+						type="text"
+						readOnly
+						value={audioFileName}
+						placeholder="No audio file selected"
+						className="w-full rounded border border-border-input bg-neutral-900 px-3 py-2 font-mono text-xs text-neutral-300 outline-none placeholder:text-neutral-500"
+					/>
+				</section>
+
+				<section className="space-y-2">
+					<div className="flex items-center justify-between gap-3">
+						<h3 className="text-sm font-medium text-neutral-100">
+							Save location
+						</h3>
 						<Button
 							variant="outline"
 							size="sm"
@@ -150,18 +209,9 @@ export default function SaveVideoDialog({
 				</section>
 
 				<section className="space-y-3">
-					<div>
-						<h3 className="text-sm font-medium text-neutral-100">
-							Time duration
-						</h3>
-						<p className="text-xs text-neutral-400">
-							Default is the full track. Enter a start and end time in
-							<code className="ml-1 rounded bg-neutral-900 px-1.5 py-0.5 text-[11px] text-neutral-300">
-								00:00:00
-							</code>
-							format.
-						</p>
-					</div>
+					<h3 className="text-sm font-medium text-neutral-100">
+						Time duration
+					</h3>
 					<div className="grid grid-cols-2 gap-4 max-[520px]:grid-cols-1">
 						<div className="flex flex-col gap-3.5">
 							<label
@@ -176,6 +226,7 @@ export default function SaveVideoDialog({
 								min={0}
 								max={totalDuration}
 								width={220}
+								disabled={totalDuration <= 0}
 								onChange={(_name, value) => setSelectedStartTime(value)}
 							/>
 						</div>
@@ -192,28 +243,21 @@ export default function SaveVideoDialog({
 								min={0}
 								max={totalDuration}
 								width={220}
+								disabled={totalDuration <= 0}
 								onChange={(_name, value) => setSelectedEndTime(value)}
 							/>
 						</div>
 					</div>
-					<p className="text-xs text-neutral-500">
-						Full track length: {formatSeekTime(totalDuration)}
-					</p>
 				</section>
 
 				<section className="space-y-2">
 					<div className="flex items-center justify-between gap-4 py-1">
-						<div>
-							<label
-								htmlFor="video-export-include-audio"
-								className="text-sm text-neutral-100"
-							>
-								Include audio
-							</label>
-							<div className="text-xs text-neutral-400">
-								Turn this off to export the visuals without an audio track.
-							</div>
-						</div>
+						<label
+							htmlFor="video-export-include-audio"
+							className="text-sm text-neutral-100"
+						>
+							Include audio
+						</label>
 						<Switch
 							id="video-export-include-audio"
 							checked={shouldIncludeAudio}
