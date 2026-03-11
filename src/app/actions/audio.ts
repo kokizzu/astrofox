@@ -34,6 +34,7 @@ export async function inspectAudioFile(file: File) {
 		file,
 		name: file.name,
 		duration: audio.getDuration(),
+		buffer: audio.buffer,
 	};
 }
 

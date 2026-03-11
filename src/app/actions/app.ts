@@ -259,6 +259,9 @@ export async function saveVideo() {
 		source?: File | null;
 		duration?: number;
 	};
+	const audioBuffer =
+		(player.getAudio?.() as { buffer?: AudioBuffer | null } | undefined)
+			?.buffer ?? null;
 	const totalDuration = Number(audioState.duration ?? 0);
 
 	showModal(
@@ -271,6 +274,7 @@ export async function saveVideo() {
 			extension: setup.extension,
 			audioSource: audioState.source ?? null,
 			audioFileName: audioState.file ?? "",
+			audioBuffer,
 			totalDuration,
 			startTime: 0,
 			endTime: totalDuration,

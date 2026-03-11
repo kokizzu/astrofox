@@ -7,11 +7,12 @@ import {
 } from "@/app/actions/app";
 import { chooseAudioFile, inspectAudioFile } from "@/app/actions/audio";
 import { raiseError } from "@/app/actions/error";
+import DualRangeInput from "@/app/components/inputs/DualRangeInput";
 import TimeInput from "@/app/components/inputs/TimeInput";
+import ExportWaveform from "@/app/components/modals/ExportWaveform";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { formatSeekTime } from "@/lib/utils/format";
 import React, { useEffect, useRef, useState } from "react";
 
 type SaveVideoDialogProps = {
@@ -22,11 +23,14 @@ type SaveVideoDialogProps = {
 	extension?: string;
 	audioSource?: File | null;
 	audioFileName?: string;
+	audioBuffer?: AudioBuffer | null;
 	totalDuration: number;
 	startTime?: number;
 	endTime?: number;
 	includeAudio?: boolean;
 };
+
+const MIN_EXPORT_DURATION = 5;
 
 export default function SaveVideoDialog({
 	onClose,
@@ -36,6 +40,7 @@ export default function SaveVideoDialog({
 	extension = "webm",
 	audioSource: initialAudioSource = null,
 	audioFileName: initialAudioFileName = "",
+	audioBuffer: initialAudioBuffer = null,
 	totalDuration: initialTotalDuration,
 	startTime = 0,
 	endTime = initialTotalDuration,
@@ -47,6 +52,9 @@ export default function SaveVideoDialog({
 		initialAudioSource,
 	);
 	const [audioFileName, setAudioFileName] = useState(initialAudioFileName);
+	const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(
+		initialAudioBuffer,
+	);
 	const [totalDuration, setTotalDuration] = useState(initialTotalDuration);
 	const [selectedStartTime, setSelectedStartTime] = useState(startTime);
 	const [selectedEndTime, setSelectedEndTime] = useState(endTime);
@@ -56,6 +64,10 @@ export default function SaveVideoDialog({
 	const [isChoosingLocation, setIsChoosingLocation] = useState(false);
 	const [isChoosingAudio, setIsChoosingAudio] = useState(false);
 	const keepSegmentOverlayRef = useRef(false);
+	const effectiveMinExportDuration = Math.min(
+		MIN_EXPORT_DURATION,
+		Math.max(totalDuration, 0),
+	);
 
 	useEffect(() => {
 		setVideoExportSegment(selectedStartTime, selectedEndTime, totalDuration);
@@ -82,6 +94,7 @@ export default function SaveVideoDialog({
 			const audio = await inspectAudioFile(file);
 			setAudioSource(audio.file);
 			setAudioFileName(audio.name);
+			setAudioBuffer(audio.buffer ?? null);
 			setTotalDuration(audio.duration);
 			setSelectedStartTime(0);
 			setSelectedEndTime(audio.duration);
@@ -119,6 +132,56 @@ export default function SaveVideoDialog({
 		onClose();
 	}
 
+	function clampRange(
+		nextStart: number,
+		nextEnd: number,
+		anchor: "start" | "end" | "auto" = "auto",
+	) {
+		if (totalDuration <= 0) {
+			return [0, 0] as const;
+		}
+
+		if (totalDuration < MIN_EXPORT_DURATION) {
+			return [0, totalDuration] as const;
+		}
+
+		let clampedStart = Math.max(0, Math.min(totalDuration, nextStart));
+		let clampedEnd = Math.max(0, Math.min(totalDuration, nextEnd));
+
+		if (clampedEnd < clampedStart) {
+			[clampedStart, clampedEnd] = [clampedEnd, clampedStart];
+		}
+
+		if (clampedEnd - clampedStart >= effectiveMinExportDuration) {
+			return [clampedStart, clampedEnd] as const;
+		}
+
+		if (anchor === "end") {
+			clampedStart = Math.max(0, clampedEnd - effectiveMinExportDuration);
+			clampedEnd = Math.min(
+				totalDuration,
+				clampedStart + effectiveMinExportDuration,
+			);
+			return [clampedStart, clampedEnd] as const;
+		}
+
+		clampedEnd = Math.min(
+			totalDuration,
+			clampedStart + effectiveMinExportDuration,
+		);
+		clampedStart = Math.max(0, clampedEnd - effectiveMinExportDuration);
+		return [clampedStart, clampedEnd] as const;
+	}
+
+	function handleTimeRangeUpdate(_name: string, nextValue: [number, number]) {
+		const startDelta = Math.abs(nextValue[0] - selectedStartTime);
+		const endDelta = Math.abs(nextValue[1] - selectedEndTime);
+		const anchor = endDelta > startDelta ? "end" : "start";
+		const [nextStart, nextEnd] = clampRange(nextValue[0], nextValue[1], anchor);
+		setSelectedStartTime(nextStart);
+		setSelectedEndTime(nextEnd);
+	}
+
 	async function handleSave() {
 		if (!audioFileName) {
 			setValidationMessage("Choose an audio file before starting the export.");
@@ -132,8 +195,18 @@ export default function SaveVideoDialog({
 			return;
 		}
 
+		if (totalDuration < MIN_EXPORT_DURATION) {
+			setValidationMessage("Audio must be at least 5 seconds long.");
+			return;
+		}
+
 		if (selectedEndTime <= selectedStartTime) {
 			setValidationMessage("End time must be later than start time.");
+			return;
+		}
+
+		if (selectedEndTime - selectedStartTime < MIN_EXPORT_DURATION) {
+			setValidationMessage("Time duration must be at least 5 seconds.");
 			return;
 		}
 
@@ -224,10 +297,18 @@ export default function SaveVideoDialog({
 								name="startTime"
 								value={selectedStartTime}
 								min={0}
-								max={totalDuration}
+								max={Math.max(0, totalDuration - effectiveMinExportDuration)}
 								width="100%"
 								disabled={totalDuration <= 0}
-								onChange={(_name, value) => setSelectedStartTime(value)}
+								onChange={(_name, value) => {
+									const [nextStart, nextEnd] = clampRange(
+										value,
+										selectedEndTime,
+										"start",
+									);
+									setSelectedStartTime(nextStart);
+									setSelectedEndTime(nextEnd);
+								}}
 							/>
 						</div>
 						<div className="flex flex-col gap-3.5">
@@ -240,14 +321,38 @@ export default function SaveVideoDialog({
 							<TimeInput
 								name="endTime"
 								value={selectedEndTime}
-								min={0}
+								min={effectiveMinExportDuration}
 								max={totalDuration}
 								width="100%"
 								disabled={totalDuration <= 0}
-								onChange={(_name, value) => setSelectedEndTime(value)}
+								onChange={(_name, value) => {
+									const [nextStart, nextEnd] = clampRange(
+										selectedStartTime,
+										value,
+										"end",
+									);
+									setSelectedStartTime(nextStart);
+									setSelectedEndTime(nextEnd);
+								}}
 							/>
 						</div>
 					</div>
+					<ExportWaveform
+						audioBuffer={audioBuffer}
+						startTime={selectedStartTime}
+						endTime={selectedEndTime}
+						duration={totalDuration}
+					/>
+					<DualRangeInput
+						name="timeRange"
+						value={[selectedStartTime, selectedEndTime]}
+						min={0}
+						max={Math.max(totalDuration, 0)}
+						step={0.01}
+						disabled={totalDuration <= 0}
+						onChange={handleTimeRangeUpdate}
+						onUpdate={handleTimeRangeUpdate}
+					/>
 				</section>
 
 				<section className="space-y-2">

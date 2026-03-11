@@ -117,22 +117,58 @@ export default function AudioWaveform() {
 		const seek = (seekPosition ?? 0) * width;
 		const sx = seek < position ? seek : position;
 		const dx = seek < position ? position - seek : seek - position;
+		const selectionStart = videoExportSegment
+			? videoExportSegment.startPosition * width
+			: 0;
+		const selectionEnd = videoExportSegment
+			? videoExportSegment.endPosition * width
+			: 0;
+		const selectionWidth = Math.max(0, selectionEnd - selectionStart);
 
 		context.clearRect(0, 0, width, height);
+		context.drawImage(baseCanvas.getCanvas(), 0, 0, width, height);
 
-		context.drawImage(
-			baseCanvas.getCanvas(),
-			position,
-			0,
-			width - position,
-			height,
-			position,
-			0,
-			width - position,
-			height,
-		);
+		if (videoExportSegment && selectionWidth > 0) {
+			context.drawImage(
+				seekCanvas.getCanvas(),
+				selectionStart,
+				0,
+				selectionWidth,
+				height,
+				selectionStart,
+				0,
+				selectionWidth,
+				height,
+			);
 
-		if (position > 0) {
+			context.fillStyle = "rgba(108, 95, 191, 0.18)";
+			context.fillRect(
+				selectionStart,
+				0,
+				selectionWidth,
+				canvasProperties.height,
+			);
+		}
+
+		if (videoExportSegment) {
+			const playedStart = selectionStart;
+			const playedEnd = Math.min(position, selectionEnd);
+			const playedWidth = Math.max(0, playedEnd - playedStart);
+
+			if (playedWidth > 0) {
+				context.drawImage(
+					progressCanvas.getCanvas(),
+					playedStart,
+					0,
+					playedWidth,
+					height,
+					playedStart,
+					0,
+					playedWidth,
+					height,
+				);
+			}
+		} else if (position > 0) {
 			context.drawImage(
 				progressCanvas.getCanvas(),
 				0,
@@ -146,7 +182,7 @@ export default function AudioWaveform() {
 			);
 		}
 
-		if (seek > 0) {
+		if (!videoExportSegment && seek > 0) {
 			context.drawImage(
 				seekCanvas.getCanvas(),
 				sx,
@@ -216,15 +252,6 @@ export default function AudioWaveform() {
 				className="relative mx-auto mt-5"
 				style={{ width, height: height + shadowHeight }}
 			>
-				{videoExportSegment ? (
-					<div
-						className="pointer-events-none absolute top-0 z-10 h-[70px] bg-primary/50"
-						style={{
-							left: `${videoExportSegment.startPosition * 100}%`,
-							width: `${(videoExportSegment.endPosition - videoExportSegment.startPosition) * 100}%`,
-						}}
-					/>
-				) : null}
 				<canvas
 					ref={canvas}
 					className={classNames("block", {
