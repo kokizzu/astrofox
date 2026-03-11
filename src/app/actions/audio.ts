@@ -18,7 +18,7 @@ const audioStore = create(() => ({
 	...initialState,
 }));
 
-export async function loadAudioFile(file, play) {
+export async function loadAudioFile(file: File | string, play?: boolean) {
 	audioStore.setState({ loading: true });
 
 	player.stop();
@@ -71,7 +71,7 @@ export async function loadAudioFile(file, play) {
 	}
 }
 
-export async function openAudioFile(play) {
+export async function openAudioFile(play?: boolean) {
 	const { files, canceled } = await api.showOpenDialog({
 		filters: [
 			{

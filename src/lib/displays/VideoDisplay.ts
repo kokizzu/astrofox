@@ -38,6 +38,7 @@ const getFittedSize = (
 
 export default class VideoDisplay extends Display {
 	declare video: HTMLVideoElement;
+	declare scene: { getSize(): { width: number; height: number } };
 
 	static config = {
 		name: "VideoDisplay",

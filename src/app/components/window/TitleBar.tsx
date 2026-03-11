@@ -23,7 +23,6 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-// @ts-nocheck
 import menuConfig from "@/lib/config/menu.json";
 import {
 	Menu as MenuIcon,
@@ -35,7 +34,37 @@ import React, { useEffect, useRef, useState } from "react";
 
 const NAV_LABELS = ["File", "Edit"];
 
-function createMenuItemKey(item, sectionLabel, index) {
+type MenuAction =
+	| "new-project"
+	| "open-project"
+	| "save-project"
+	| "load-audio"
+	| "save-image"
+	| "save-video"
+	| "edit-canvas"
+	| "open-dev-tools";
+
+type MenuEntry = {
+	key?: string;
+	label?: string;
+	action?: MenuAction;
+	type?: "separator";
+	checked?: boolean;
+	disabled?: boolean;
+	hidden?: boolean;
+	role?: string;
+	accelerator?: string;
+};
+
+interface MenuSection {
+	label: string;
+	hidden?: boolean;
+	submenu?: MenuEntry[];
+}
+
+const typedMenuConfig = menuConfig as MenuSection[];
+
+function createMenuItemKey(item: MenuEntry, sectionLabel: string, index: number) {
 	if (item.key) {
 		return item.key;
 	}
@@ -49,15 +78,15 @@ function createMenuItemKey(item, sectionLabel, index) {
 	return `${sectionLabel.toLowerCase()}-${base}-${index}`;
 }
 
-function cloneSubmenu(items = [], sectionLabel = "menu") {
+function cloneSubmenu(items: MenuEntry[] = [], sectionLabel = "menu"): MenuEntry[] {
 	return items.map((item, index) => ({
 		...item,
 		key: createMenuItemKey(item, sectionLabel, index),
 	}));
 }
 
-function createMenuItems() {
-	const merged = menuConfig
+function createMenuItems(): MenuEntry[] {
+	const merged = typedMenuConfig
 		.filter((item) => NAV_LABELS.includes(item.label) && !item.hidden)
 		.flatMap((item, index) => {
 			const submenu = cloneSubmenu(item.submenu, item.label);
@@ -67,7 +96,7 @@ function createMenuItems() {
 
 			return [
 				{
-					type: "separator",
+					type: "separator" as const,
 					key: `separator-${item.label.toLowerCase()}`,
 				},
 				...submenu,
@@ -97,13 +126,13 @@ export default function TitleBar() {
 	const isRightPanelVisible = useAppStore((state) => state.isRightPanelVisible);
 	const projectName = useProject((state) => state.projectName);
 	const [hasAudio, setHasAudio] = useState(() => player.hasAudio());
-	const [menuItems, setMenuItems] = useState(createMenuItems);
+	const [menuItems, setMenuItems] = useState<MenuEntry[]>(createMenuItems);
 	const [menuOpen, setMenuOpen] = useState(false);
 	const [projectNameEditing, setProjectNameEditing] = useState(false);
 	const [projectNameDraft, setProjectNameDraft] = useState(
 		projectName || DEFAULT_PROJECT_NAME,
 	);
-	const projectNameInputRef = useRef(null);
+	const projectNameInputRef = useRef<HTMLInputElement>(null);
 
 	useEffect(() => {
 		const syncAudioAvailability = () => {
@@ -134,7 +163,7 @@ export default function TitleBar() {
 		projectNameInputRef.current.select();
 	}, [projectNameEditing]);
 
-	function onMenuItemClick(item) {
+	function onMenuItemClick(item: MenuEntry) {
 		const { action, checked } = item;
 		if (isMenuItemDisabled(item)) {
 			return;
@@ -157,7 +186,7 @@ export default function TitleBar() {
 		}
 	}
 
-	function beginProjectNameEdit(event) {
+	function beginProjectNameEdit(event: React.MouseEvent<HTMLButtonElement>) {
 		event.stopPropagation();
 		setProjectNameDraft(projectName || DEFAULT_PROJECT_NAME);
 		setProjectNameEditing(true);
@@ -182,7 +211,7 @@ export default function TitleBar() {
 		setProjectNameEditing(false);
 	}
 
-	function onProjectNameKeyDown(event) {
+	function onProjectNameKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
 		if (event.key === "Enter") {
 			event.preventDefault();
 			commitProjectNameEdit();
@@ -195,7 +224,7 @@ export default function TitleBar() {
 		}
 	}
 
-	function isMenuItemDisabled(item) {
+	function isMenuItemDisabled(item: MenuEntry) {
 		if (item.disabled) {
 			return true;
 		}

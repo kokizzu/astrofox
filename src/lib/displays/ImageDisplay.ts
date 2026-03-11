@@ -38,6 +38,7 @@ const getFittedSize = (
 
 export default class ImageDisplay extends Display {
 	declare image: HTMLImageElement;
+	declare scene: { getSize(): { width: number; height: number } };
 
 	static config = {
 		name: "ImageDisplay",

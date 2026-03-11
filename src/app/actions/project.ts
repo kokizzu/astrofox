@@ -14,7 +14,6 @@ import {
 	DEFAULT_CANVAS_WIDTH,
 } from "@/app/constants";
 import { api, env, library, logger, reactors, stage } from "@/app/global";
-// @ts-nocheck
 import AudioReactor from "@/lib/audio/AudioReactor";
 import Display from "@/lib/core/Display";
 import Entity from "@/lib/core/Entity";
@@ -25,6 +24,75 @@ import create from "zustand";
 
 export const DEFAULT_PROJECT_NAME = "Untitled Project";
 
+type MediaKind = "image" | "video";
+
+export interface MediaRef {
+	displayId: string;
+	kind: MediaKind;
+	label: string;
+	sourcePath: string;
+}
+
+interface ProjectState {
+	projectId: string | null;
+	projectName: string;
+	opened: number;
+	lastModified: number;
+	unresolvedMediaRefs: MediaRef[];
+}
+
+interface FileLikeWithPath extends File {
+	path?: string;
+	filePath?: string;
+	fullPath?: string;
+}
+
+interface ElementSnapshot extends Record<string, unknown> {
+	id: string;
+	name?: string;
+	displayName?: string;
+	properties?: Record<string, unknown>;
+}
+
+interface SceneSnapshot extends Record<string, unknown> {
+	displays?: ElementSnapshot[];
+	effects?: ElementSnapshot[];
+}
+
+interface ProjectSnapshot extends Record<string, unknown> {
+	stage?: { properties?: Record<string, unknown> };
+	scenes?: SceneSnapshot[];
+	reactors?: Record<string, unknown>[];
+}
+
+interface ProjectFilePayload extends Record<string, unknown> {
+	snapshot?: ProjectSnapshot;
+	snapshotJson?: ProjectSnapshot;
+	project?: {
+		snapshot?: ProjectSnapshot;
+		snapshotJson?: ProjectSnapshot;
+		name?: string;
+		mediaRefs?: MediaRef[];
+	};
+	projectName?: string;
+	name?: string;
+	mediaRefs?: MediaRef[];
+}
+
+type MediaRefInput = Partial<MediaRef> & {
+	path?: string;
+};
+
+type LibraryConstructor = new (
+	properties?: Record<string, unknown>,
+) => Entity;
+
+type SceneEntity = {
+	id: string;
+	scene: unknown;
+	toJSON: () => Record<string, unknown>;
+};
+
 const PROJECT_FILE_FILTERS = [
 	{
 		name: "Astrofox project",
@@ -33,7 +101,7 @@ const PROJECT_FILE_FILTERS = [
 	},
 ];
 
-const initialState = {
+const initialState: ProjectState = {
 	projectId: null,
 	projectName: DEFAULT_PROJECT_NAME,
 	opened: 0,
@@ -41,11 +109,11 @@ const initialState = {
 	unresolvedMediaRefs: [],
 };
 
-const projectStore = create(() => ({
+const projectStore = create<ProjectState>(() => ({
 	...initialState,
 }));
 
-function snapshotProject() {
+function snapshotProject(): ProjectSnapshot {
 	return {
 		version: env.APP_VERSION,
 		stage: stage.toJSON(),
@@ -54,31 +122,31 @@ function snapshotProject() {
 	};
 }
 
-function isEmbeddedMediaSource(src) {
+function isEmbeddedMediaSource(src: string) {
 	return /^data:(image|video)\//i.test(src);
 }
 
-function isRemoteMediaSource(src) {
+function isRemoteMediaSource(src: string) {
 	return /^(https?:)?\/\//i.test(src);
 }
 
-function isBlobMediaSource(src) {
+function isBlobMediaSource(src: string) {
 	return /^blob:/i.test(src);
 }
 
-function isFileUrlSource(src) {
+function isFileUrlSource(src: string) {
 	return /^file:\/\//i.test(src);
 }
 
-function isWindowsPathSource(src) {
+function isWindowsPathSource(src: string) {
 	return /^[a-zA-Z]:[\\/]/.test(src);
 }
 
-function isUncPathSource(src) {
+function isUncPathSource(src: string) {
 	return /^\\\\/.test(src);
 }
 
-function normalizeMediaPath(path) {
+function normalizeMediaPath(path: unknown): string {
 	if (typeof path !== "string") {
 		return "";
 	}
@@ -86,7 +154,7 @@ function normalizeMediaPath(path) {
 	return path.trim();
 }
 
-function fileUrlToPath(src) {
+function fileUrlToPath(src: string): string {
 	if (!isFileUrlSource(src)) {
 		return "";
 	}
@@ -114,7 +182,7 @@ function fileUrlToPath(src) {
 	}
 }
 
-function toFileUrl(path) {
+function toFileUrl(path: string): string {
 	const sourcePath = normalizeMediaPath(path);
 
 	if (!sourcePath) {
@@ -145,7 +213,7 @@ function toFileUrl(path) {
 	return sourcePath;
 }
 
-function getMediaSourcePath(src) {
+function getMediaSourcePath(src: unknown): string {
 	if (typeof src !== "string") {
 		return "";
 	}
@@ -161,7 +229,7 @@ function getMediaSourcePath(src) {
 	return "";
 }
 
-function getFilePath(file) {
+function getFilePath(file: FileLikeWithPath | null | undefined): string {
 	if (!file || typeof file !== "object") {
 		return "";
 	}
@@ -174,15 +242,20 @@ function getFilePath(file) {
 	return path;
 }
 
-function getMediaKind(element) {
+function getMediaKind(element: Pick<ElementSnapshot, "name"> | null | undefined): MediaKind {
 	return element?.name === "VideoDisplay" ? "video" : "image";
 }
 
-function getMediaLabel(element) {
+function getMediaLabel(
+	element: Pick<ElementSnapshot, "displayName" | "name"> | null | undefined,
+): string {
 	return element?.displayName || element?.name || "Media";
 }
 
-function buildMediaRef(element, sourcePath = "") {
+function buildMediaRef(
+	element: Pick<ElementSnapshot, "id" | "name" | "displayName">,
+	sourcePath = "",
+): MediaRef {
 	return {
 		displayId: element.id,
 		kind: getMediaKind(element),
@@ -191,7 +264,9 @@ function buildMediaRef(element, sourcePath = "") {
 	};
 }
 
-function normalizeMediaRef(mediaRef) {
+function normalizeMediaRef(
+	mediaRef: MediaRefInput | null | undefined,
+): MediaRef | null {
 	if (!mediaRef || typeof mediaRef !== "object" || !mediaRef.displayId) {
 		return null;
 	}
@@ -207,8 +282,10 @@ function normalizeMediaRef(mediaRef) {
 	};
 }
 
-function mergeMediaRefs(...groups) {
-	const byDisplayId = new Map();
+function mergeMediaRefs(
+	...groups: Array<MediaRefInput[] | null | undefined>
+): MediaRef[] {
+	const byDisplayId = new Map<string, MediaRef>();
 
 	for (const group of groups) {
 		for (const mediaRef of group || []) {
@@ -230,15 +307,15 @@ function mergeMediaRefs(...groups) {
 	return Array.from(byDisplayId.values());
 }
 
-async function canLoadMediaSource(src, kind) {
+async function canLoadMediaSource(src: string, kind: MediaKind): Promise<boolean> {
 	if (!src) {
 		return false;
 	}
 
-	return new Promise((resolve) => {
+	return new Promise<boolean>((resolve) => {
 		let settled = false;
 
-		function done(result) {
+		function done(result: boolean) {
 			if (settled) {
 				return;
 			}
@@ -287,11 +364,11 @@ async function canLoadMediaSource(src, kind) {
 	});
 }
 
-function prepareSnapshotMediaForSave(snapshot) {
-	const mediaRefs = [];
+function prepareSnapshotMediaForSave(snapshot: ProjectSnapshot) {
+	const mediaRefs: MediaRef[] = [];
 
-	const scenes = (snapshot?.scenes || []).map((scene) => {
-		const mapMediaProps = (element) => {
+	const scenes = (snapshot?.scenes || []).map((scene: SceneSnapshot) => {
+		const mapMediaProps = (element: ElementSnapshot) => {
 			const src = element?.properties?.src;
 			const sourcePath = normalizeMediaPath(element?.properties?.sourcePath);
 
@@ -373,8 +450,14 @@ function prepareSnapshotMediaForSave(snapshot) {
 	};
 }
 
-async function resolveSnapshotMediaOnLoad(snapshot, payloadMediaRefs = []) {
-	const mediaRefMap = new Map();
+async function resolveSnapshotMediaOnLoad(
+	snapshot: ProjectSnapshot,
+	payloadMediaRefs: MediaRefInput[] = [],
+): Promise<{
+	snapshot: ProjectSnapshot;
+	unresolvedMediaRefs: MediaRef[];
+}> {
+	const mediaRefMap = new Map<string, MediaRef>();
 
 	for (const mediaRef of payloadMediaRefs || []) {
 		const normalized = normalizeMediaRef(mediaRef);
@@ -384,11 +467,11 @@ async function resolveSnapshotMediaOnLoad(snapshot, payloadMediaRefs = []) {
 		}
 	}
 
-	const unresolvedMediaRefs = [];
+	const unresolvedMediaRefs: MediaRef[] = [];
 
 	const scenes = await Promise.all(
-		(snapshot?.scenes || []).map(async (scene) => {
-			const mapMediaProps = async (element) => {
+		(snapshot?.scenes || []).map(async (scene: SceneSnapshot) => {
+			const mapMediaProps = async (element: ElementSnapshot) => {
 				const src = element?.properties?.src;
 
 				const mediaRef = mediaRefMap.get(element.id);
@@ -415,7 +498,10 @@ async function resolveSnapshotMediaOnLoad(snapshot, payloadMediaRefs = []) {
 						};
 					}
 
-					if (isEmbeddedMediaSource(src) || isRemoteMediaSource(src)) {
+					if (
+						typeof src === "string" &&
+						(isEmbeddedMediaSource(src) || isRemoteMediaSource(src))
+					) {
 						return {
 							...element,
 							properties: {
@@ -474,13 +560,13 @@ async function resolveSnapshotMediaOnLoad(snapshot, payloadMediaRefs = []) {
 	};
 }
 
-function setUnresolvedMediaRefs(mediaRefs = []) {
+function setUnresolvedMediaRefs(mediaRefs: MediaRef[] = []) {
 	projectStore.setState({
 		unresolvedMediaRefs: mediaRefs,
 	});
 }
 
-function sanitizeFileName(name) {
+function sanitizeFileName(name?: string) {
 	return (name || "")
 		.trim()
 		.replace(/[<>:"/\\|?*\x00-\x1F]/g, "-")
@@ -488,7 +574,7 @@ function sanitizeFileName(name) {
 		.trim();
 }
 
-function createProjectFileName(name) {
+function createProjectFileName(name?: string) {
 	const safeName = sanitizeFileName(name) || DEFAULT_PROJECT_NAME;
 	return `${safeName}.json`;
 }
@@ -497,17 +583,19 @@ function parseProjectNameFromFile(fileName = "") {
 	return fileName.replace(/\.json$/i, "").trim() || DEFAULT_PROJECT_NAME;
 }
 
-function parseProjectPayload(payload, fallbackName) {
+function parseProjectPayload(payload: unknown, fallbackName?: string) {
 	if (!payload || typeof payload !== "object") {
 		throw new Error("Invalid project file.");
 	}
 
+	const data = payload as ProjectFilePayload;
+
 	const snapshot =
-		payload.snapshot ||
-		payload.snapshotJson ||
-		payload.project?.snapshot ||
-		payload.project?.snapshotJson ||
-		payload;
+		data.snapshot ||
+		data.snapshotJson ||
+		data.project?.snapshot ||
+		data.project?.snapshotJson ||
+		data;
 
 	if (!snapshot || typeof snapshot !== "object") {
 		throw new Error("Invalid project snapshot.");
@@ -516,16 +604,16 @@ function parseProjectPayload(payload, fallbackName) {
 	return {
 		snapshot,
 		projectName:
-			payload.projectName ||
-			payload.name ||
-			payload.project?.name ||
+			data.projectName ||
+			data.name ||
+			data.project?.name ||
 			fallbackName ||
 			DEFAULT_PROJECT_NAME,
-		mediaRefs: payload.mediaRefs || payload.project?.mediaRefs || [],
+		mediaRefs: data.mediaRefs || data.project?.mediaRefs || [],
 	};
 }
 
-async function loadProjectFromPayload(payload, fallbackName) {
+async function loadProjectFromPayload(payload: unknown, fallbackName?: string) {
 	const { snapshot, projectName, mediaRefs } = parseProjectPayload(
 		payload,
 		fallbackName,
@@ -564,19 +652,22 @@ export function resetProject() {
 	projectStore.setState({ ...initialState });
 }
 
-export function loadProject(data) {
+export function loadProject(data: ProjectSnapshot) {
 	logger.log("Loaded project:", data);
 
-	const displays = library.get("displays");
-	const effects = library.get("effects");
+	const displays = library.get("displays") as Record<string, LibraryConstructor>;
+	const effects = library.get("effects") as Record<string, LibraryConstructor>;
 
-	const loadElement = (scene, config) => {
-		const { name } = config;
+	const loadElement = (
+		scene: Scene,
+		config: Record<string, unknown> & { name?: string },
+	) => {
+		const { name = "" } = config;
 		const module = displays[name] || effects[name];
 
 		if (module) {
 			const entity = Display.create(module, config);
-			scene.addElement(entity);
+			scene.addElement(entity as unknown as SceneEntity);
 		} else {
 			logger.warn("Component not found:", name);
 		}
@@ -587,7 +678,7 @@ export function loadProject(data) {
 	resetLabelCount();
 
 	if (data.stage) {
-		updateStage(data.stage.properties);
+		updateStage(data.stage.properties || {});
 	} else {
 		updateStage(Stage.defaultProperties);
 	}
@@ -595,13 +686,13 @@ export function loadProject(data) {
 	if (data.reactors) {
 		for (const config of data.reactors) {
 			const reactor = Entity.create(AudioReactor, config);
-			reactors.addReactor(reactor);
+			reactors.addReactor(reactor as unknown);
 		}
 	}
 
 	if (data.scenes) {
 		for (const config of data.scenes) {
-			const scene = Display.create(Scene, config);
+			const scene = Display.create(Scene, config) as Scene;
 
 			stage.addScene(scene);
 
@@ -630,12 +721,12 @@ export async function newProject() {
 		DEFAULT_CANVAS_BGCOLOR,
 	);
 
-	const scene = stage.addScene();
-	const displays = library.get("displays");
+	const scene = stage.addScene() as Scene;
+	const displays = library.get("displays") as Record<string, LibraryConstructor>;
 
-	scene.addElement(new displays.ImageDisplay());
-	scene.addElement(new displays.BarSpectrumDisplay());
-	scene.addElement(new displays.TextDisplay());
+	scene.addElement(new displays.ImageDisplay() as unknown as SceneEntity);
+	scene.addElement(new displays.BarSpectrumDisplay() as unknown as SceneEntity);
+	scene.addElement(new displays.TextDisplay() as unknown as SceneEntity);
 
 	await loadScenes();
 	await loadReactors();
@@ -649,7 +740,10 @@ export async function newProject() {
 	});
 }
 
-export function checkUnsavedChanges(menuAction, action) {
+export function checkUnsavedChanges(
+	menuAction: string,
+	action: () => unknown,
+) {
 	const { opened, lastModified } = projectStore.getState();
 
 	if (lastModified > opened) {
@@ -693,7 +787,7 @@ export function openProjectBrowser() {
 	return openProjectFile();
 }
 
-export function openRelinkMediaDialog(modalProps = {}) {
+export function openRelinkMediaDialog(modalProps: Record<string, unknown> = {}) {
 	showModal("RelinkMediaDialog", {
 		title: "Relink Media",
 		...modalProps,
@@ -704,11 +798,11 @@ export async function listProjects() {
 	return [];
 }
 
-export async function loadProjectById(_projectId) {
+export async function loadProjectById(_projectId: string) {
 	raiseError("Cloud projects were removed.", new Error("Use Open project."));
 }
 
-export async function renameProjectById(_projectId, _name) {
+export async function renameProjectById(_projectId: string, _name: string) {
 	raiseError(
 		"Cloud projects were removed.",
 		new Error("Use Save project to download a new file."),
@@ -716,14 +810,14 @@ export async function renameProjectById(_projectId, _name) {
 	return null;
 }
 
-export async function deleteProjectById(_projectId) {
+export async function deleteProjectById(_projectId: string) {
 	raiseError(
 		"Cloud projects were removed.",
 		new Error("Use your file system to delete local project files."),
 	);
 }
 
-export async function saveProject(nameOverride) {
+export async function saveProject(nameOverride?: string) {
 	const state = projectStore.getState();
 	const name = (
 		nameOverride ||
@@ -775,7 +869,7 @@ export async function saveProject(nameOverride) {
 	}
 }
 
-export async function relinkMediaRef(mediaRef) {
+export async function relinkMediaRef(mediaRef: MediaRef) {
 	try {
 		const isVideo = mediaRef.kind === "video";
 		const filters = isVideo

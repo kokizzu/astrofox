@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 
+interface WindowState {
+	focused: boolean;
+}
+
 export default function useWindowState() {
-	const [state, setState] = useState({});
+	const [state, setState] = useState<WindowState>({ focused: true });
 
 	const updateState = useCallback(() => {
 		setState({

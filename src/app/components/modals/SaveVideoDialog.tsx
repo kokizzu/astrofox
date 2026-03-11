@@ -1,6 +1,7 @@
 import {
 	chooseVideoSaveLocation,
 	clearVideoExportSegment,
+	type FileHandleLike,
 	setVideoExportSegment,
 	startVideoRecording,
 } from "@/app/actions/app";
@@ -14,7 +15,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 type SaveVideoDialogProps = {
 	onClose: () => void;
-	fileHandle?: { name?: string } | null;
+	fileHandle?: FileHandleLike | null;
 	filePath?: string;
 	defaultPath?: string;
 	extension?: string;

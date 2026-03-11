@@ -1,14 +1,7 @@
-import useProject, { relinkMediaRef } from "@/app/actions/project";
+import useProject, { relinkMediaRef, type MediaRef } from "@/app/actions/project";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import React, { useState } from "react";
-
-interface MediaRef {
-	displayId: string;
-	label: string;
-	kind: string;
-	sourcePath?: string;
-}
 
 interface RelinkMediaDialogProps {
 	onClose?: () => void;

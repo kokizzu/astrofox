@@ -16,13 +16,85 @@ import {
 	renderBackend,
 	renderer,
 } from "@/app/global";
-// @ts-nocheck
 import Plugin from "@/lib/core/Plugin";
 import * as displays from "@/lib/displays";
 import * as effects from "@/lib/effects";
 import create from "zustand";
 
-const initialState = {
+export interface VideoExportSegment {
+	startPosition: number;
+	endPosition: number;
+}
+
+interface AppState {
+	statusText: string;
+	showReactor: boolean;
+	activeReactorId: string | null;
+	activeElementId: string | null;
+	isLeftPanelVisible: boolean;
+	isBottomPanelVisible: boolean;
+	isRightPanelVisible: boolean;
+	isVideoRecording: boolean;
+	videoExportSegment: VideoExportSegment | null;
+}
+
+export interface FileHandleLike {
+	name: string;
+	getFile: () => Promise<File>;
+	createWritable: () => Promise<{
+		write: (blob: Blob) => Promise<void>;
+		close: () => Promise<void>;
+	}>;
+}
+
+interface VideoSaveLocationResult {
+	canceled: boolean;
+	defaultPath: string;
+	extension: string;
+	fileHandle?: FileHandleLike | null;
+	filePath?: string;
+}
+
+interface StartVideoRecordingOptions {
+	fileHandle?: FileHandleLike | null;
+	filePath?: string;
+	defaultPath?: string;
+	startTime?: number;
+	endTime?: number;
+	includeAudio?: boolean;
+}
+
+interface CaptureStreamCanvas {
+	captureStream: (frameRate?: number) => MediaStream;
+}
+
+interface PluginConfig {
+	name: string;
+	label: string;
+	type: string;
+	defaultProperties: Record<string, unknown>;
+	icon?: string;
+}
+
+interface PluginModuleLike {
+	config: PluginConfig;
+	prototype: Record<string, unknown>;
+	[key: string]: unknown;
+}
+
+type LibraryModule = {
+	config: PluginConfig;
+};
+
+type LibraryConstructor = (new (properties?: Record<string, unknown>) => unknown) &
+	LibraryModule;
+
+type PluginDescriptor = {
+	src: string;
+	icon?: string;
+};
+
+const initialState: AppState = {
 	statusText: "",
 	showReactor: false,
 	activeReactorId: null,
@@ -34,13 +106,13 @@ const initialState = {
 	videoExportSegment: null,
 };
 
-const appStore = create(() => ({
+const appStore = create<AppState>(() => ({
 	...initialState,
 }));
 
-let appInitPromise = null;
+let appInitPromise: Promise<void> | null = null;
 let appInitialized = false;
-let activeVideoRecorder = null;
+let activeVideoRecorder: MediaRecorder | null = null;
 
 const DEFAULT_VIDEO_FPS = 60;
 const RECORDING_TIMESLICE_MS = 250;
@@ -53,7 +125,7 @@ const VIDEO_MIME_CANDIDATES = [
 	"video/mp4",
 ];
 
-function getSupportedVideoMimeType() {
+function getSupportedVideoMimeType(): string | null {
 	if (
 		typeof window === "undefined" ||
 		typeof window.MediaRecorder === "undefined"
@@ -68,11 +140,16 @@ function getSupportedVideoMimeType() {
 	);
 }
 
-function getExtensionFromMimeType(mimeType) {
+function getExtensionFromMimeType(mimeType: string): string {
 	return mimeType.includes("mp4") ? "mp4" : "webm";
 }
 
-function getVideoRecordingSetup() {
+function getVideoRecordingSetup(): {
+	canvas: CaptureStreamCanvas;
+	mimeType: string;
+	totalDuration: number;
+	extension: string;
+} | null {
 	if (activeVideoRecorder && activeVideoRecorder.state === "recording") {
 		raiseError("A video recording is already in progress.");
 		return null;
@@ -91,7 +168,7 @@ function getVideoRecordingSetup() {
 		return null;
 	}
 
-	const canvas = renderBackend.getCanvas?.();
+	const canvas = renderBackend.getCanvas?.() as CaptureStreamCanvas | null;
 
 	if (!canvas || typeof canvas.captureStream !== "function") {
 		raiseError("Failed to access the stage canvas for video recording.");
@@ -121,9 +198,9 @@ function getVideoRecordingSetup() {
 }
 
 export async function chooseVideoSaveLocation(
-	preferredPath,
+	preferredPath?: string,
 	extension = "webm",
-) {
+): Promise<VideoSaveLocationResult> {
 	const defaultPath = preferredPath || `video-${Date.now()}.${extension}`;
 	const filters = [{ name: extension.toUpperCase(), extensions: [extension] }];
 	const { fileHandle, filePath, canceled } = await api.showSaveDialog({
@@ -159,7 +236,7 @@ export async function saveImage() {
 
 	if (!canceled) {
 		try {
-			const data = renderer.getFrameData(false);
+			const data = renderer.getFrameData(0);
 
 			renderBackend.render(data);
 
@@ -204,7 +281,11 @@ export async function saveVideo() {
 	);
 }
 
-export function setVideoExportSegment(startTime, endTime, totalDuration) {
+export function setVideoExportSegment(
+	startTime: number,
+	endTime: number,
+	totalDuration: number,
+) {
 	if (!Number.isFinite(totalDuration) || totalDuration <= 0) {
 		appStore.setState({ videoExportSegment: null });
 		return;
@@ -238,7 +319,7 @@ export async function startVideoRecording({
 	startTime = 0,
 	endTime,
 	includeAudio = true,
-}) {
+}: StartVideoRecordingOptions): Promise<boolean> {
 	const setup = getVideoRecordingSetup();
 
 	if (!setup) {
@@ -266,8 +347,8 @@ export async function startVideoRecording({
 		defaultPath ||
 		`video-${Date.now()}.${setup.extension}`;
 	const previousLoop = player.isLooping();
-	let audioDestination = null;
-	let recordingStream = null;
+	let audioDestination: MediaStreamAudioDestinationNode | null = null;
+	let recordingStream: MediaStream | null = null;
 
 	try {
 		if (audioContext.state === "suspended") {
@@ -290,9 +371,9 @@ export async function startVideoRecording({
 		});
 
 		activeVideoRecorder = recorder;
-		const chunks = [];
+		const chunks: Blob[] = [];
 		const fileName = targetPath;
-		let stopTimer = null;
+		let stopTimer: number | null = null;
 		let recordingFailed = false;
 
 		const onPlayerStop = () => {
@@ -318,7 +399,7 @@ export async function startVideoRecording({
 				}
 			}
 
-			for (const track of recordingStream.getTracks()) {
+			for (const track of recordingStream?.getTracks() || []) {
 				track.stop();
 			}
 
@@ -333,13 +414,13 @@ export async function startVideoRecording({
 			});
 		};
 
-		recorder.ondataavailable = (event) => {
+		recorder.ondataavailable = (event: BlobEvent) => {
 			if (event.data && event.data.size > 0) {
 				chunks.push(event.data);
 			}
 		};
 
-		recorder.onerror = (event) => {
+		recorder.onerror = (event: Event & { error?: DOMException }) => {
 			recordingFailed = true;
 			cleanup();
 			raiseError("Failed to record video.", event?.error || event);
@@ -404,11 +485,11 @@ export async function startVideoRecording({
 	}
 }
 
-export function setActiveReactorId(reactorId) {
+export function setActiveReactorId(reactorId?: string | null) {
 	appStore.setState({ activeReactorId: reactorId || null });
 }
 
-export function setActiveElementId(elementId) {
+export function setActiveElementId(elementId?: string | null) {
 	appStore.setState({ activeElementId: elementId || null });
 }
 
@@ -430,7 +511,7 @@ export function toggleRightPanelVisibility() {
 	}));
 }
 
-export async function handleMenuAction(action) {
+export async function handleMenuAction(action: string) {
 	switch (action) {
 		case "new-project":
 			await checkUnsavedChanges(action, newProject);
@@ -441,11 +522,11 @@ export async function handleMenuAction(action) {
 			break;
 
 		case "save-project":
-			await saveProject();
+			await saveProject(undefined);
 			break;
 
 		case "load-audio":
-			await openAudioFile();
+			await openAudioFile(undefined);
 			break;
 
 		case "save-image":
@@ -469,15 +550,21 @@ export async function handleMenuAction(action) {
 export async function loadPlugins() {
 	logger.time("plugins");
 
-	const plugins = {};
+	const plugins: Record<string, LibraryConstructor> = {};
 
-	for (const [key, plugin] of Object.entries(api.getPlugins())) {
+	for (const [key, plugin] of Object.entries(
+		api.getPlugins() as Record<string, PluginDescriptor>,
+	)) {
 		try {
-			const module = await import(/* webpackIgnore: true */ plugin.src);
+			const module = (await import(
+				/* webpackIgnore: true */ plugin.src
+			)) as { default: PluginModuleLike };
 
 			module.default.config.icon = plugin.icon;
 
-			plugins[key] = Plugin.create(module.default);
+			plugins[key] = Plugin.create(
+				module.default,
+			) as unknown as LibraryConstructor;
 		} catch (e) {
 			logger.error(e);
 		}
@@ -489,17 +576,24 @@ export async function loadPlugins() {
 }
 
 export async function loadLibrary() {
-	const plugins = library.get("plugins");
+	const plugins = (library.get("plugins") ?? {}) as Record<
+		string,
+		LibraryConstructor
+	>;
 
-	const coreDisplays = {};
-	for (const [key, display] of Object.entries(displays)) {
+	const coreDisplays: Record<string, LibraryConstructor> = {};
+	for (const [key, display] of Object.entries(
+		displays as Record<string, LibraryConstructor>,
+	)) {
 		display.config.icon = `images/controls/${key}.png`;
 
 		coreDisplays[key] = display;
 	}
 
-	const coreEffects = {};
-	for (const [key, effect] of Object.entries(effects)) {
+	const coreEffects: Record<string, LibraryConstructor> = {};
+	for (const [key, effect] of Object.entries(
+		effects as Record<string, LibraryConstructor>,
+	)) {
 		effect.config.icon = `images/controls/${key}.png`;
 
 		coreEffects[key] = effect;

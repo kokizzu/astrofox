@@ -4,6 +4,9 @@ import cloneDeep from "lodash/cloneDeep";
 
 export default class Entity {
 	[key: string]: unknown;
+	declare id: string;
+	declare name: string;
+	declare properties: Record<string, unknown>;
 
 	static create = (
 		Type: new (properties?: Record<string, unknown>) => Entity,
@@ -17,7 +20,7 @@ export default class Entity {
 			entity[key] = value;
 		}
 
-		entity.id = id;
+		entity.id = id as string;
 
 		return entity;
 	};
