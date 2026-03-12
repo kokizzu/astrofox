@@ -99,7 +99,7 @@ export default function SectionAddMenu({
 				<Plus className="h-3.5 w-3.5" />
 			</DropdownMenuTrigger>
 			<DropdownMenuContent
-				className="min-w-44 rounded border-neutral-700 bg-neutral-900 p-1 shadow-lg"
+				className="min-w-44 rounded border-neutral-700 bg-neutral-900 p-1"
 				align="center"
 				sideOffset={8}
 			>
