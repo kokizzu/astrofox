@@ -554,7 +554,10 @@ export async function handleMenuAction(action: string) {
 			break;
 
 		case "edit-canvas":
-			await showModal("CanvasSettings", { title: "Project settings" });
+			await showModal("CanvasSettings", {
+				title: "Project settings",
+				showCloseButton: false,
+			});
 			break;
 
 		case "open-dev-tools":

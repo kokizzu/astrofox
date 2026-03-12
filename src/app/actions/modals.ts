@@ -4,6 +4,7 @@ import create from "zustand";
 interface Modal {
 	id: string;
 	component: string;
+	open: boolean;
 	modalProps?: Record<string, unknown>;
 	componentProps?: Record<string, unknown>;
 }
@@ -29,15 +30,35 @@ export function showModal(
 		modals: modals.concat({
 			id: uniqueId(),
 			component,
+			open: true,
 			modalProps,
 			componentProps,
 		}),
 	}));
 }
 
-export function closeModal() {
+export function closeModal(id?: string) {
 	modalStore.setState(({ modals }: ModalState) => ({
-		modals: modals.slice(0, -1),
+		modals: modals.map((modal, index) => {
+			const isTarget = id ? modal.id === id : index === modals.length - 1;
+
+			if (!isTarget) {
+				return modal;
+			}
+
+			return {
+				...modal,
+				open: false,
+			};
+		}),
+	}));
+}
+
+export function removeModal(id?: string) {
+	modalStore.setState(({ modals }: ModalState) => ({
+		modals: modals.filter((modal, index) =>
+			id ? modal.id !== id : index !== modals.length - 1,
+		),
 	}));
 }
 

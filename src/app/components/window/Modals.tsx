@@ -1,5 +1,5 @@
 // @ts-nocheck
-import useModals, { closeModal } from "@/app/actions/modals";
+import useModals, { closeModal, removeModal } from "@/app/actions/modals";
 import * as modalComponents from "@/app/components/modals";
 import ModalWindow from "@/app/components/window/ModalWindow";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -7,23 +7,36 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 export default function Modals() {
 	const modals = useModals((state) => state.modals);
 
-	function handleClose() {
-		closeModal();
+	function handleClose(id: string) {
+		closeModal(id);
+	}
+
+	function handleCloseComplete(id: string) {
+		removeModal(id);
 	}
 
 	return modals.map((item) => {
-		const { id, component, modalProps, componentProps } = item;
+		const { id, component, modalProps, componentProps, open } = item;
 		const Component = modalComponents[component];
-		const showCloseButton = modalProps?.showCloseButton !== false;
 
 		return (
-			<Dialog key={id} open onOpenChange={(open) => !open && handleClose()}>
+			<Dialog
+				key={id}
+				open={open}
+				onOpenChange={(nextOpen) => !nextOpen && handleClose(id)}
+				onOpenChangeComplete={(nextOpen) =>
+					!nextOpen && handleCloseComplete(id)
+				}
+			>
 				<DialogContent
-					showCloseButton={showCloseButton}
+					keepMounted
+					showCloseButton={false}
 					className="w-auto max-h-[85vh] max-w-[calc(100%-2rem)] gap-0 overflow-hidden rounded-md border border-neutral-700 bg-neutral-800 p-0 text-neutral-100 sm:max-w-[calc(100%-2rem)]"
 				>
-					<ModalWindow {...modalProps} onClose={handleClose}>
-						{Component && <Component {...componentProps} onClose={handleClose} />}
+					<ModalWindow {...modalProps} onClose={() => handleClose(id)}>
+						{Component && (
+							<Component {...componentProps} onClose={() => handleClose(id)} />
+						)}
 					</ModalWindow>
 				</DialogContent>
 			</Dialog>
