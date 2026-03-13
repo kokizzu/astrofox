@@ -1,12 +1,29 @@
 // @ts-nocheck
 import { BLANK_IMAGE } from "@/app/constants";
+import { player } from "@/app/global";
 import React from "react";
 import { LinearFilter, SRGBColorSpace, VideoTexture } from "three";
 import { TexturePlane } from "./TexturePlane";
 
+function getClipStart(startTime) {
+	return Math.max(0, Number(startTime) || 0);
+}
+
+function getClipEnd(video, clipStart, endTime) {
+	const explicitEnd = Number(endTime) || 0;
+
+	if (explicitEnd > clipStart) {
+		return explicitEnd;
+	}
+
+	const duration = Number(video.duration) || 0;
+	return duration > clipStart ? duration : 0;
+}
+
 export function VideoDisplayLayer({
 	display,
 	order,
+	frameData,
 	sceneOpacity,
 	sceneBlendMode,
 	sceneMask,
@@ -27,6 +44,9 @@ export function VideoDisplayLayer({
 		startTime = 0,
 		endTime = 0,
 	} = properties;
+	const audioPlaying = Boolean(frameData?.audioPlaying);
+	const shouldLoop = loop !== false;
+	const hasExplicitEndTime = (Number(endTime) || 0) > 0;
 
 	const video = React.useMemo(() => {
 		const element = document.createElement("video");
@@ -48,6 +68,55 @@ export function VideoDisplayLayer({
 		return nextTexture;
 	}, [video]);
 
+	const syncVideoTime = React.useCallback(
+		(audioTime = 0) => {
+			if (!src || src === BLANK_IMAGE) {
+				return;
+			}
+
+			const clipStart = getClipStart(startTime);
+			const clipEnd = getClipEnd(video, clipStart, endTime);
+			const nextAudioTime = Math.max(0, Number(audioTime) || 0);
+			let nextTime = clipStart + nextAudioTime;
+
+			if (shouldLoop && clipEnd > clipStart) {
+				const clipDuration = clipEnd - clipStart;
+				nextTime = clipStart + (nextAudioTime % clipDuration);
+			} else if (clipEnd > clipStart) {
+				nextTime = Math.min(nextTime, clipEnd);
+			}
+
+			const duration = Number(video.duration) || 0;
+			if (duration > 0) {
+				nextTime = Math.min(nextTime, duration);
+			}
+
+			if (!Number.isFinite(nextTime)) {
+				nextTime = clipStart;
+			}
+
+			if (Math.abs((video.currentTime || 0) - nextTime) > 0.05) {
+				try {
+					video.currentTime = nextTime;
+				} catch {
+					// Ignore failed seeks before metadata is ready.
+				}
+			}
+		},
+		[video, src, startTime, endTime, shouldLoop],
+	);
+
+	const resumeVideo = React.useCallback(() => {
+		if (!src || src === BLANK_IMAGE || !player.isPlaying()) {
+			return;
+		}
+
+		const playback = video.play();
+		if (playback?.catch) {
+			playback.catch(() => {});
+		}
+	}, [video, src]);
+
 	React.useEffect(() => {
 		if (!src || src === BLANK_IMAGE) {
 			video.pause();
@@ -56,25 +125,44 @@ export function VideoDisplayLayer({
 			return;
 		}
 
-		video.loop = Boolean(loop && !endTime);
-		video.src = src;
+		video.loop = Boolean(shouldLoop && !hasExplicitEndTime);
+
+		if (video.getAttribute("src") !== src) {
+			video.src = src;
+		}
 
 		const onTimeUpdate = () => {
-			if (loop && endTime > 0 && video.currentTime >= endTime) {
-				video.currentTime = Math.max(0, startTime || 0);
+			const clipStart = getClipStart(startTime);
+			const clipEnd = getClipEnd(video, clipStart, endTime);
+
+			if (shouldLoop && clipEnd > clipStart && video.currentTime >= clipEnd) {
+				video.currentTime = clipStart;
+				resumeVideo();
 			}
 		};
 
 		const onLoadedMetadata = () => {
-			video.currentTime = Math.max(0, startTime || 0);
-			const playback = video.play();
-			if (playback?.catch) {
-				playback.catch(() => {});
+			syncVideoTime(player.isPlaying() ? player.getCurrentTime() : 0);
+
+			if (player.isPlaying()) {
+				resumeVideo();
+			} else {
+				video.pause();
 			}
+		};
+
+		const onEnded = () => {
+			if (!shouldLoop) {
+				return;
+			}
+
+			syncVideoTime(player.getCurrentTime());
+			resumeVideo();
 		};
 
 		video.addEventListener("timeupdate", onTimeUpdate);
 		video.addEventListener("loadedmetadata", onLoadedMetadata);
+		video.addEventListener("ended", onEnded);
 
 		if (video.readyState >= 1) {
 			onLoadedMetadata();
@@ -84,8 +172,59 @@ export function VideoDisplayLayer({
 			video.pause();
 			video.removeEventListener("timeupdate", onTimeUpdate);
 			video.removeEventListener("loadedmetadata", onLoadedMetadata);
+			video.removeEventListener("ended", onEnded);
 		};
-	}, [video, src, loop, startTime, endTime]);
+	}, [
+		video,
+		src,
+		shouldLoop,
+		hasExplicitEndTime,
+		startTime,
+		endTime,
+		syncVideoTime,
+		resumeVideo,
+	]);
+
+	React.useEffect(() => {
+		if (!src || src === BLANK_IMAGE) {
+			return;
+		}
+
+		if (!audioPlaying) {
+			video.pause();
+			return;
+		}
+
+		syncVideoTime(player.getCurrentTime());
+		resumeVideo();
+	}, [audioPlaying, video, src, syncVideoTime, resumeVideo]);
+
+	React.useEffect(() => {
+		if (!src || src === BLANK_IMAGE) {
+			return;
+		}
+
+		const handleSeek = () => {
+			syncVideoTime(player.getCurrentTime());
+
+			if (player.isPlaying()) {
+				resumeVideo();
+			}
+		};
+
+		const handleStop = () => {
+			video.pause();
+			syncVideoTime(0);
+		};
+
+		player.on("seek", handleSeek);
+		player.on("stop", handleStop);
+
+		return () => {
+			player.off("seek", handleSeek);
+			player.off("stop", handleStop);
+		};
+	}, [video, src, syncVideoTime, resumeVideo]);
 
 	React.useEffect(() => {
 		return () => {
@@ -96,7 +235,7 @@ export function VideoDisplayLayer({
 		};
 	}, [texture, video]);
 
-	if (!src || src === BLANK_IMAGE) {
+	if (!src || src === BLANK_IMAGE || !audioPlaying) {
 		return null;
 	}
 
