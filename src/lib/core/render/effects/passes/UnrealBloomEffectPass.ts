@@ -23,6 +23,7 @@ export default class UnrealBloomEffectPass extends Pass {
 			Number(radius ?? 0),
 			Number(threshold ?? 0),
 		);
+		this.patchBloomAlpha();
 		this.needsSwap = false;
 		this.updateOptions({
 			exposure,
@@ -30,6 +31,38 @@ export default class UnrealBloomEffectPass extends Pass {
 			radius,
 			threshold,
 		});
+	}
+
+	patchBloomAlpha() {
+		for (const material of this.unrealBloomPass.separableBlurMaterials || []) {
+			if (
+				!material?.fragmentShader?.includes(
+					"gl_FragColor = vec4(diffuseSum/weightSum, 1.0);",
+				)
+			) {
+				continue;
+			}
+
+			// Preserve blurred alpha so bloom can composite as a soft halo instead of an opaque wash.
+			material.fragmentShader = material.fragmentShader
+				.replace(
+					"vec3 diffuseSum = texture2D( colorTexture, vUv ).rgb * weightSum;",
+					"vec4 diffuseSum = texture2D( colorTexture, vUv ) * weightSum;",
+				)
+				.replace(
+					"vec3 sample1 = texture2D( colorTexture, vUv + uvOffset ).rgb;",
+					"vec4 sample1 = texture2D( colorTexture, vUv + uvOffset );",
+				)
+				.replace(
+					"vec3 sample2 = texture2D( colorTexture, vUv - uvOffset ).rgb;",
+					"vec4 sample2 = texture2D( colorTexture, vUv - uvOffset );",
+				)
+				.replace(
+					"gl_FragColor = vec4(diffuseSum/weightSum, 1.0);",
+					"gl_FragColor = diffuseSum / weightSum;",
+				);
+			material.needsUpdate = true;
+		}
 	}
 
 	updateOptions({

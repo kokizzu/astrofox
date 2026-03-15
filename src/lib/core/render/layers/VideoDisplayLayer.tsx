@@ -44,7 +44,6 @@ export function VideoDisplayLayer({
 		startTime = 0,
 		endTime = 0,
 	} = properties;
-	const audioPlaying = Boolean(frameData?.audioPlaying);
 	const shouldLoop = loop !== false;
 	const hasExplicitEndTime = (Number(endTime) || 0) > 0;
 
@@ -190,19 +189,15 @@ export function VideoDisplayLayer({
 			return;
 		}
 
-		if (!audioPlaying) {
+		const handlePlay = () => {
+			syncVideoTime(player.getCurrentTime());
+			resumeVideo();
+		};
+
+		const handlePause = () => {
 			video.pause();
-			return;
-		}
-
-		syncVideoTime(player.getCurrentTime());
-		resumeVideo();
-	}, [audioPlaying, video, src, syncVideoTime, resumeVideo]);
-
-	React.useEffect(() => {
-		if (!src || src === BLANK_IMAGE) {
-			return;
-		}
+			syncVideoTime(player.getCurrentTime());
+		};
 
 		const handleSeek = () => {
 			syncVideoTime(player.getCurrentTime());
@@ -217,10 +212,14 @@ export function VideoDisplayLayer({
 			syncVideoTime(0);
 		};
 
+		player.on("play", handlePlay);
+		player.on("pause", handlePause);
 		player.on("seek", handleSeek);
 		player.on("stop", handleStop);
 
 		return () => {
+			player.off("play", handlePlay);
+			player.off("pause", handlePause);
 			player.off("seek", handleSeek);
 			player.off("stop", handleStop);
 		};
@@ -235,7 +234,7 @@ export function VideoDisplayLayer({
 		};
 	}, [texture, video]);
 
-	if (!src || src === BLANK_IMAGE || !audioPlaying) {
+	if (!src || src === BLANK_IMAGE) {
 		return null;
 	}
 
