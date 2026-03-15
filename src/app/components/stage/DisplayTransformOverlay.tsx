@@ -8,6 +8,8 @@ import {
 
 type Handle = "move" | "n" | "e" | "s" | "w" | "ne" | "nw" | "se" | "sw";
 
+const HANDLE_HIT_PADDING = 10;
+
 interface DisplayTransformOverlayProps {
 	activeElementId: string | null;
 	displayDescriptor?: Record<string, unknown>;
@@ -36,6 +38,18 @@ const HANDLE_VECTORS: Record<Exclude<Handle, "move">, [number, number]> = {
 	nw: [-1, -1],
 	se: [1, 1],
 	sw: [-1, 1],
+};
+
+const HANDLE_CURSORS: Record<Handle, React.CSSProperties["cursor"]> = {
+	move: "move",
+	n: "ns-resize",
+	e: "ew-resize",
+	s: "ns-resize",
+	w: "ew-resize",
+	ne: "nesw-resize",
+	nw: "nwse-resize",
+	se: "nwse-resize",
+	sw: "nesw-resize",
 };
 
 function roundValue(value: number) {
@@ -215,6 +229,72 @@ function hasChangedProperties(
 	);
 }
 
+function getHandleAtPointerPosition(
+	clientX: number,
+	clientY: number,
+	frame: DisplayTransformFrame,
+	element: HTMLDivElement,
+) {
+	const bounds = element.getBoundingClientRect();
+	const local = screenToLocalDelta(
+		clientX - (bounds.left + bounds.width / 2),
+		clientY - (bounds.top + bounds.height / 2),
+		frame.rotation,
+	);
+	const halfWidth = bounds.width / 2;
+	const halfHeight = bounds.height / 2;
+
+	if (
+		Math.abs(local.x) > halfWidth + HANDLE_HIT_PADDING ||
+		Math.abs(local.y) > halfHeight + HANDLE_HIT_PADDING
+	) {
+		return null;
+	}
+
+	const nearLeft = Math.abs(local.x + halfWidth) <= HANDLE_HIT_PADDING;
+	const nearRight = Math.abs(local.x - halfWidth) <= HANDLE_HIT_PADDING;
+	const nearTop = Math.abs(local.y + halfHeight) <= HANDLE_HIT_PADDING;
+	const nearBottom = Math.abs(local.y - halfHeight) <= HANDLE_HIT_PADDING;
+
+	if (nearTop && nearLeft) {
+		return "nw";
+	}
+
+	if (nearTop && nearRight) {
+		return "ne";
+	}
+
+	if (nearBottom && nearRight) {
+		return "se";
+	}
+
+	if (nearBottom && nearLeft) {
+		return "sw";
+	}
+
+	if (nearTop) {
+		return "n";
+	}
+
+	if (nearRight) {
+		return "e";
+	}
+
+	if (nearBottom) {
+		return "s";
+	}
+
+	if (nearLeft) {
+		return "w";
+	}
+
+	if (Math.abs(local.x) <= halfWidth && Math.abs(local.y) <= halfHeight) {
+		return "move";
+	}
+
+	return null;
+}
+
 export default function DisplayTransformOverlay({
 	activeElementId,
 	displayDescriptor,
@@ -232,6 +312,7 @@ export default function DisplayTransformOverlay({
 	);
 	const [draftFrame, setDraftFrame] =
 		React.useState<DisplayTransformFrame | null>(resolvedFrame);
+	const [hoverHandle, setHoverHandle] = React.useState<Handle | null>(null);
 	const interactionRef = React.useRef<DragInteraction | null>(null);
 
 	React.useEffect(() => {
@@ -267,6 +348,7 @@ export default function DisplayTransformOverlay({
 				update: (properties: Record<string, unknown>) => void;
 			} | null;
 
+			document.body.style.cursor = HANDLE_CURSORS[interaction.handle];
 			element?.update(nextResult.properties);
 			interaction.finalProperties = nextResult.properties;
 			setDraftFrame(nextResult.frame);
@@ -281,6 +363,7 @@ export default function DisplayTransformOverlay({
 		window.removeEventListener("pointerup", handleWindowPointerUp);
 		window.removeEventListener("pointercancel", handleWindowPointerUp);
 		document.body.style.userSelect = "";
+		document.body.style.cursor = "";
 
 		if (
 			interaction &&
@@ -318,6 +401,7 @@ export default function DisplayTransformOverlay({
 
 			event.preventDefault();
 			event.stopPropagation();
+			document.body.style.cursor = HANDLE_CURSORS[handle];
 
 			interactionRef.current = {
 				elementId: activeElementId,
@@ -342,6 +426,33 @@ export default function DisplayTransformOverlay({
 		],
 	);
 
+	const handlePointerMove = React.useCallback(
+		(event: React.PointerEvent<HTMLDivElement>) => {
+			if (!draftFrame || interactionRef.current) {
+				return;
+			}
+
+			const nextHandle = getHandleAtPointerPosition(
+				event.clientX,
+				event.clientY,
+				draftFrame,
+				event.currentTarget,
+			);
+			setHoverHandle((current) =>
+				current === nextHandle ? current : nextHandle,
+			);
+		},
+		[draftFrame],
+	);
+
+	const handlePointerLeave = React.useCallback(() => {
+		if (interactionRef.current) {
+			return;
+		}
+
+		setHoverHandle(null);
+	}, []);
+
 	if (!enabled || !draftFrame) {
 		return null;
 	}
@@ -349,22 +460,33 @@ export default function DisplayTransformOverlay({
 	const frame = draftFrame;
 	const centerX = stageWidth / 2 + frame.x;
 	const centerY = stageHeight / 2 + frame.y;
-	const widthPx = Math.max(1, frame.renderWidth * zoom);
-	const heightPx = Math.max(1, frame.renderHeight * zoom);
+	const centerXPx = Math.round(centerX * zoom);
+	const centerYPx = Math.round(centerY * zoom);
+	const widthPx = Math.max(1, Math.round(frame.renderWidth * zoom));
+	const heightPx = Math.max(1, Math.round(frame.renderHeight * zoom));
 
 	return (
 		<div className="pointer-events-none absolute inset-0 z-20">
 			<div
-				className="absolute"
+				className="absolute pointer-events-auto"
 				style={{
-					left: centerX * zoom,
-					top: centerY * zoom,
+					left: centerXPx,
+					top: centerYPx,
 					width: widthPx,
 					height: heightPx,
+					cursor: hoverHandle ? HANDLE_CURSORS[hoverHandle] : "default",
 					transform: `translate(-50%, -50%) rotate(${frame.rotation}deg)`,
 				}}
+				onPointerMove={handlePointerMove}
+				onPointerLeave={handlePointerLeave}
 			>
-				<div className="pointer-events-none absolute inset-0 border border-white shadow-[0_0_0_1px_rgba(0,0,0,0.65)]" />
+				<div className="pointer-events-none absolute inset-0">
+					<div className="absolute inset-0 shadow-[0_0_0_1px_rgba(0,0,0,0.65)]" />
+					<div className="absolute inset-x-0 top-0 h-px bg-primary" />
+					<div className="absolute inset-y-0 right-0 w-px bg-primary" />
+					<div className="absolute inset-x-0 bottom-0 h-px bg-primary" />
+					<div className="absolute inset-y-0 left-0 w-px bg-primary" />
+				</div>
 				<button
 					type="button"
 					aria-label="Move layer"
@@ -374,67 +496,74 @@ export default function DisplayTransformOverlay({
 				<button
 					type="button"
 					aria-label="Resize top"
-					className="absolute -top-[6px] left-[10px] right-[10px] h-3 cursor-ns-resize pointer-events-auto bg-transparent"
+					className="absolute -top-[5px] left-[10px] right-[10px] h-2.5 cursor-ns-resize pointer-events-auto bg-transparent"
 					onPointerDown={startInteraction("n")}
 				/>
 				<button
 					type="button"
 					aria-label="Resize right"
-					className="absolute -right-[6px] top-[10px] bottom-[10px] w-3 cursor-ew-resize pointer-events-auto bg-transparent"
+					className="absolute -right-[5px] top-[10px] bottom-[10px] w-2.5 cursor-ew-resize pointer-events-auto bg-transparent"
 					onPointerDown={startInteraction("e")}
 				/>
 				<button
 					type="button"
 					aria-label="Resize bottom"
-					className="absolute -bottom-[6px] left-[10px] right-[10px] h-3 cursor-ns-resize pointer-events-auto bg-transparent"
+					className="absolute -bottom-[5px] left-[10px] right-[10px] h-2.5 cursor-ns-resize pointer-events-auto bg-transparent"
 					onPointerDown={startInteraction("s")}
 				/>
 				<button
 					type="button"
 					aria-label="Resize left"
-					className="absolute -left-[6px] top-[10px] bottom-[10px] w-3 cursor-ew-resize pointer-events-auto bg-transparent"
+					className="absolute -left-[5px] top-[10px] bottom-[10px] w-2.5 cursor-ew-resize pointer-events-auto bg-transparent"
 					onPointerDown={startInteraction("w")}
 				/>
 				{[
 					{
 						handle: "nw" as const,
-						className: "-left-[5px] -top-[5px] cursor-nwse-resize",
+						className:
+							"left-0 top-0 -translate-x-1/2 -translate-y-1/2 cursor-nwse-resize",
 						label: "Resize top left",
 					},
 					{
 						handle: "ne" as const,
-						className: "-right-[5px] -top-[5px] cursor-nesw-resize",
+						className:
+							"right-0 top-0 translate-x-1/2 -translate-y-1/2 cursor-nesw-resize",
 						label: "Resize top right",
 					},
 					{
 						handle: "se" as const,
-						className: "-right-[5px] -bottom-[5px] cursor-nwse-resize",
+						className:
+							"bottom-0 right-0 translate-x-1/2 translate-y-1/2 cursor-nwse-resize",
 						label: "Resize bottom right",
 					},
 					{
 						handle: "sw" as const,
-						className: "-left-[5px] -bottom-[5px] cursor-nesw-resize",
+						className:
+							"bottom-0 left-0 -translate-x-1/2 translate-y-1/2 cursor-nesw-resize",
 						label: "Resize bottom left",
 					},
 					{
 						handle: "n" as const,
-						className: "left-1/2 -top-[5px] -translate-x-1/2 cursor-ns-resize",
+						className:
+							"left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 cursor-ns-resize",
 						label: "Resize top edge",
 					},
 					{
 						handle: "e" as const,
-						className: "top-1/2 -right-[5px] -translate-y-1/2 cursor-ew-resize",
+						className:
+							"right-0 top-1/2 translate-x-1/2 -translate-y-1/2 cursor-ew-resize",
 						label: "Resize right edge",
 					},
 					{
 						handle: "s" as const,
 						className:
-							"left-1/2 -bottom-[5px] -translate-x-1/2 cursor-ns-resize",
+							"bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 cursor-ns-resize",
 						label: "Resize bottom edge",
 					},
 					{
 						handle: "w" as const,
-						className: "top-1/2 -left-[5px] -translate-y-1/2 cursor-ew-resize",
+						className:
+							"left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize",
 						label: "Resize left edge",
 					},
 				].map((item) => (
@@ -442,7 +571,7 @@ export default function DisplayTransformOverlay({
 						key={item.handle + item.label}
 						type="button"
 						aria-label={item.label}
-						className={`absolute h-2.5 w-2.5 border border-black bg-white pointer-events-auto ${item.className}`}
+						className={`absolute h-2.5 w-2.5 border border-primary bg-white pointer-events-auto ${item.className}`}
 						onPointerDown={startInteraction(item.handle)}
 					/>
 				))}
