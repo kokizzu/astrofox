@@ -215,6 +215,11 @@ export default class HybridBackend extends RenderBackend {
 			events: this.fiberModule.events,
 			frameloop: "demand",
 			dpr: 1,
+			gl: {
+				antialias: true,
+				alpha: true,
+				powerPreference: "high-performance",
+			},
 			orthographic: true,
 			camera: {
 				position: [0, 0, 10],

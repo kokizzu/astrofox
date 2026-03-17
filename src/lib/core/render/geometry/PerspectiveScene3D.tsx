@@ -8,6 +8,7 @@ import {
 	DepthTexture,
 	HalfFloatType,
 	LinearFilter,
+	PCFSoftShadowMap,
 	PerspectiveCamera,
 	RGBAFormat,
 	Scene as ThreeScene,
@@ -153,6 +154,11 @@ export function PerspectiveScene3D({
 		perspCamera.aspect = width / height;
 		applyCameraState(cameraStateRef.current);
 	}, [applyCameraState, perspCamera, width, height, cameraZ]);
+
+	React.useEffect(() => {
+		gl.shadowMap.enabled = true;
+		gl.shadowMap.type = PCFSoftShadowMap;
+	}, [gl]);
 
 	React.useEffect(() => {
 		cameraAxisHelper.scale.setScalar(cameraAxisScale);
@@ -311,10 +317,19 @@ export function PerspectiveScene3D({
 
 		return Math.max(1, Math.round((width * dofRenderHeight) / height));
 	}, [dofRenderHeight, height, width]);
+	const multisampleCount = React.useMemo(
+		() => (gl.capabilities.isWebGL2 ? 4 : 0),
+		[gl],
+	);
 
 	React.useEffect(() => {
 		colorTarget.setSize(width, height);
 	}, [colorTarget, width, height]);
+
+	React.useEffect(() => {
+		colorTarget.samples = multisampleCount;
+		effectTarget.samples = multisampleCount;
+	}, [colorTarget, effectTarget, multisampleCount]);
 
 	React.useEffect(() => {
 		effectTarget.setSize(

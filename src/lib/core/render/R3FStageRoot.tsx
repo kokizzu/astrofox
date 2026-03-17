@@ -6,6 +6,7 @@ import React from "react";
 import { Color } from "three";
 import { SceneComposite, SceneWithEffects } from "./effects";
 import {
+	CubesDisplayLayer3D,
 	GeometryDisplayLayer3D,
 	PerspectiveScene3D,
 	TunnelDisplayLayer3D,
@@ -176,6 +177,20 @@ export default function R3FStageRoot({
 							key={display.id}
 							display={display}
 							order={order}
+							height={height}
+							frameData={frameData}
+							{...NEUTRAL_SCENE_PROPS}
+						/>,
+					);
+					break;
+				case "CubesDisplay":
+					if (scene3D.length === 0) scene3DOrder = order;
+					scene3D.push(
+						<CubesDisplayLayer3D
+							key={display.id}
+							display={display}
+							order={order}
+							width={width}
 							height={height}
 							frameData={frameData}
 							{...NEUTRAL_SCENE_PROPS}

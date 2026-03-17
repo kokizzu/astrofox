@@ -40,7 +40,7 @@ const HANDLE_VECTORS: Record<Exclude<Handle, "move">, [number, number]> = {
 	sw: [-1, 1],
 };
 
-const HANDLE_CURSORS: Record<Handle, React.CSSProperties["cursor"]> = {
+const HANDLE_CURSORS: Record<Handle, string> = {
 	move: "move",
 	n: "ns-resize",
 	e: "ew-resize",

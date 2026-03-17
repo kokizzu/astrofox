@@ -1,4 +1,8 @@
-const THREE_D_DISPLAY_NAMES = new Set(["GeometryDisplay", "TunnelDisplay"]);
+const THREE_D_DISPLAY_NAMES = new Set([
+	"CubesDisplay",
+	"GeometryDisplay",
+	"TunnelDisplay",
+]);
 
 export type DisplayRenderGroup = "2d" | "3d";
 
