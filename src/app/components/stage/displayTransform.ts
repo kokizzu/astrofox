@@ -142,10 +142,16 @@ export function getDisplayTransformFrame(
 		: heightProperty > 0
 			? heightProperty
 			: Number(mediaSize?.height || canvasSize?.height || 0);
-	const baseRenderWidth =
-		(canvasSize?.width || mediaSize?.width || editableWidth) ?? 0;
-	const baseRenderHeight =
-		(canvasSize?.height || mediaSize?.height || editableHeight) ?? 0;
+	const baseRenderWidth = Math.max(
+		editableWidth,
+		Number(canvasSize?.width || 0),
+		Number(mediaSize?.width || 0),
+	);
+	const baseRenderHeight = Math.max(
+		editableHeight,
+		Number(canvasSize?.height || 0),
+		Number(mediaSize?.height || 0),
+	);
 	const renderWidth = baseRenderWidth * displayZoom;
 	const renderHeight = baseRenderHeight * displayZoom;
 
