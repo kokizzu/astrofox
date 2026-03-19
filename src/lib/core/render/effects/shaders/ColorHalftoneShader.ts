@@ -1,15 +1,18 @@
 // @ts-nocheck
 import fragmentShader from "@/lib/shaders/glsl/fragment/color-halftone.glsl";
 import vertexShader from "@/lib/shaders/glsl/vertex/basic.glsl";
-import { Vector2 } from "three";
 
 export default {
 	uniforms: {
-		inputTexture: { type: "t", value: null },
-		angle: { type: "f", value: 1.0 },
-		scale: { type: "f", value: 1.0 },
-		center: { type: "v2", value: new Vector2(0, 0) },
-		resolution: { type: "v2", value: new Vector2(1, 1) },
+		inputTexture: { value: null },
+		shape: { value: 1 },
+		radius: { value: 4 },
+		rotateR: { value: Math.PI / 12 },
+		rotateG: { value: (Math.PI / 12) * 2 },
+		rotateB: { value: (Math.PI / 12) * 3 },
+		scatter: { value: 0 },
+		width: { value: 1 },
+		height: { value: 1 },
 	},
 	vertexShader,
 	fragmentShader,

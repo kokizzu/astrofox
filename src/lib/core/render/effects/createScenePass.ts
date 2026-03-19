@@ -27,6 +27,13 @@ const BOX_BLUR_MAX = 10;
 const TRIANGLE_BLUR_MAX = 200;
 const CIRCULAR_BLUR_MAX = 10;
 const ZOOM_BLUR_MAX = 1;
+const HALFTONE_SHAPE_MAP = {
+	Dot: 1,
+	Ellipse: 2,
+	Line: 3,
+	Square: 4,
+	Diamond: 5,
+};
 
 function attachUpdater(pass, update) {
 	pass.__updateScenePass = update;
@@ -196,11 +203,15 @@ export function createScenePass(effectConfig, width, height) {
 			const pass = new ShaderPass(ColorHalftoneShader);
 			pass.enabled = effectConfig.enabled !== false;
 			return attachUpdater(pass, () => {
-				pass.setSize(width, height);
 				pass.setUniforms({
-					scale: 1 - Number(props.scale || 0),
-					angle: toRadians(Number(props.angle || 0)),
-					center: [0, 0],
+					width,
+					height,
+					shape: HALFTONE_SHAPE_MAP[props.shape] || HALFTONE_SHAPE_MAP.Dot,
+					radius: Math.max(1, Number(props.radius ?? 4)),
+					rotateR: toRadians(Number(props.rotateR ?? props.angle ?? 15)),
+					rotateG: toRadians(Number(props.rotateG ?? 30)),
+					rotateB: toRadians(Number(props.rotateB ?? 45)),
+					scatter: Number(props.scatter ?? 0),
 				});
 			});
 		}
