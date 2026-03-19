@@ -143,7 +143,7 @@ export function PointWavesDisplayLayer3D({
 	useFrame((_, delta) => {
 		const deltaSeconds = frameData?.hasUpdate
 			? Math.max(0, Number(frameData?.delta ?? 16.667)) / 1000
-			: delta;
+			: 0;
 		const waveSpeed = Math.max(0, Number(speed) || 0);
 		const waveAmplitude = Math.max(0, Number(waveHeight) || 0);
 		const pointScale = Math.max(0.5, Number(pointSize) || 0.5);
