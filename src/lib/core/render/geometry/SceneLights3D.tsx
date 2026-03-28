@@ -6,8 +6,6 @@ const LIGHTING_PRESETS = {
 		keyPosition: [-0.42, 1.4, 0.58],
 		fillPosition: [0.8, 0.52, 0.72],
 		rimPosition: [-0.78, 0.38, -0.88],
-		ambient: 1,
-		sky: 1,
 		key: 1,
 		fill: 1,
 		rim: 1,
@@ -16,8 +14,6 @@ const LIGHTING_PRESETS = {
 		keyPosition: [-0.2, 1.8, 0.32],
 		fillPosition: [0.95, 0.36, 0.4],
 		rimPosition: [-0.6, 0.7, -1.05],
-		ambient: 0.55,
-		sky: 0.3,
 		key: 1.2,
 		fill: 0.4,
 		rim: 1,
@@ -26,8 +22,6 @@ const LIGHTING_PRESETS = {
 		keyPosition: [-0.62, 1.12, 0.74],
 		fillPosition: [0.94, 0.84, 0.94],
 		rimPosition: [-1.05, -0.2, -1.05],
-		ambient: 0.8,
-		sky: 0.75,
 		key: 0.9,
 		fill: 1,
 		rim: 0.45,
@@ -36,8 +30,6 @@ const LIGHTING_PRESETS = {
 		keyPosition: [-0.28, 0.9, 0.2],
 		fillPosition: [0.35, 0.5, 0.3],
 		rimPosition: [-0.35, 0.4, -0.35],
-		ambient: 1.3,
-		sky: 0.15,
 		key: 0.18,
 		fill: 0.08,
 		rim: 0,
@@ -51,15 +43,13 @@ function scalePosition(position: number[], distance: number) {
 export function SceneLights3D({ sceneProperties = {}, width, height }) {
 	const {
 		lightingPreset = "Studio",
-		ambientLightIntensity = 0.08,
-		skyLightIntensity = 0.12,
 		keyLightIntensity = 2.2,
 		fillLightIntensity = 0.75,
 		rimLightIntensity = 0.35,
 		lightDistance = 700,
 		lightColor = "#FFFFFF",
-		skyColor = "#F3F1FF",
-		groundColor = "#020202",
+		fillLightColor = "#FFFFFF",
+		rimLightColor = "#F3F1FF",
 		shadows = true,
 	} = sceneProperties;
 
@@ -73,17 +63,6 @@ export function SceneLights3D({ sceneProperties = {}, width, height }) {
 
 	return (
 		<>
-			<ambientLight
-				intensity={
-					Math.max(0, Number(ambientLightIntensity) || 0) * preset.ambient
-				}
-				color={lightColor}
-			/>
-			<hemisphereLight
-				intensity={Math.max(0, Number(skyLightIntensity) || 0) * preset.sky}
-				color={skyColor}
-				groundColor={groundColor}
-			/>
 			<directionalLight
 				position={scalePosition(preset.keyPosition, resolvedDistance)}
 				intensity={Math.max(0, Number(keyLightIntensity) || 0) * preset.key}
@@ -104,13 +83,13 @@ export function SceneLights3D({ sceneProperties = {}, width, height }) {
 				intensity={Math.max(0, Number(fillLightIntensity) || 0) * preset.fill}
 				decay={0}
 				position={scalePosition(preset.fillPosition, resolvedDistance)}
-				color={lightColor}
+				color={fillLightColor}
 			/>
 			<pointLight
 				intensity={Math.max(0, Number(rimLightIntensity) || 0) * preset.rim}
 				decay={0}
 				position={scalePosition(preset.rimPosition, resolvedDistance)}
-				color={skyColor}
+				color={rimLightColor}
 			/>
 		</>
 	);

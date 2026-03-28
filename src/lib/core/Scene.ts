@@ -67,15 +67,13 @@ export default class Scene extends Display {
 			cameraAzimuth: (45 * Math.PI) / 180,
 			cameraPolar: (30 * Math.PI) / 180,
 			lightingPreset: "Studio",
-			ambientLightIntensity: 0.08,
-			skyLightIntensity: 0.12,
 			keyLightIntensity: 2.2,
 			fillLightIntensity: 0.75,
 			rimLightIntensity: 0.35,
 			lightDistance: 700,
 			lightColor: "#FFFFFF",
-			skyColor: "#F3F1FF",
-			groundColor: "#020202",
+			fillLightColor: "#FFFFFF",
+			rimLightColor: "#F3F1FF",
 			shadows: true,
 		},
 		controls: {
@@ -107,22 +105,6 @@ export default class Scene extends Display {
 				label: "Lighting",
 				type: "select",
 				items: lightingPresetOptions,
-			},
-			ambientLightIntensity: {
-				label: "Ambient",
-				type: "number",
-				min: 0,
-				max: 1,
-				step: 0.01,
-				withRange: true,
-			},
-			skyLightIntensity: {
-				label: "Sky",
-				type: "number",
-				min: 0,
-				max: 1.5,
-				step: 0.01,
-				withRange: true,
 			},
 			keyLightIntensity: {
 				label: "Key",
@@ -157,15 +139,15 @@ export default class Scene extends Display {
 				withRange: true,
 			},
 			lightColor: {
-				label: "Light Color",
+				label: "Key Color",
 				type: "color",
 			},
-			skyColor: {
-				label: "Sky Color",
+			fillLightColor: {
+				label: "Fill Color",
 				type: "color",
 			},
-			groundColor: {
-				label: "Ground Color",
+			rimLightColor: {
+				label: "Rim Color",
 				type: "color",
 			},
 			shadows: {
