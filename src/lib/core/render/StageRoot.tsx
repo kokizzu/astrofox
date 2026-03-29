@@ -2,9 +2,9 @@
 import useApp from "@/app/actions/app";
 import useScenes, { getSceneIdForElement } from "@/app/actions/scenes";
 import { BLANK_IMAGE } from "@/app/constants";
+import { useFrame } from "@react-three/fiber";
 import React from "react";
-import { Color } from "three";
-import { SceneComposite, SceneWithEffects } from "./effects";
+import { SceneWithEffects } from "./effects";
 import {
 	CubesDisplayLayer3D,
 	GeometryDisplayLayer3D,
@@ -30,13 +30,21 @@ const NEUTRAL_SCENE_PROPS = {
 	sceneMaskCombine: "replace",
 };
 
-export default function R3FStageRoot({
+function ComposerPresenter({ onPresent }) {
+	useFrame((state) => {
+		onPresent?.(state.gl);
+	}, 1);
+
+	return null;
+}
+
+export default function StageRoot({
 	width,
 	height,
-	backgroundColor,
 	scenes,
 	frameData,
-	frameIndex,
+	sceneLayersRef,
+	onPresent,
 }) {
 	const activeElementId = useApp((state) => state.activeElementId);
 	const cameraModeEnabled = useApp((state) => state.cameraModeEnabled);
@@ -49,12 +57,6 @@ export default function R3FStageRoot({
 				: null,
 		[activeElementId, cameraModeEnabled, elementParentSceneId, sceneById],
 	);
-	const bgColor = React.useMemo(
-		() => new Color(backgroundColor),
-		[backgroundColor],
-	);
-	const sceneLayersRef = React.useRef(new Map());
-
 	let order = 1;
 	let sceneOrder = 0;
 	const sceneProducers = [];
@@ -73,7 +75,7 @@ export default function R3FStageRoot({
 		);
 		const scene2D = [];
 		const scene3D = [];
-		let scene3DOrder = order; // track first 3D display's order for FBO renderOrder
+		let scene3DOrder = order;
 
 		for (const display of scene.displays || []) {
 			if (!display?.enabled) {
@@ -179,6 +181,7 @@ export default function R3FStageRoot({
 							display={display}
 							order={order}
 							height={height}
+							sceneProperties={scene.properties || {}}
 							frameData={frameData}
 							{...NEUTRAL_SCENE_PROPS}
 						/>,
@@ -213,6 +216,7 @@ export default function R3FStageRoot({
 				default:
 					break;
 			}
+
 			order += 1;
 		}
 
@@ -266,14 +270,8 @@ export default function R3FStageRoot({
 
 	return (
 		<>
-			<primitive key="background" attach="background" object={bgColor} />
 			{sceneProducers}
-			<SceneComposite
-				width={width}
-				height={height}
-				backgroundColor={backgroundColor}
-				sceneLayersRef={sceneLayersRef}
-			/>
+			<ComposerPresenter onPresent={onPresent} />
 		</>
 	);
 }

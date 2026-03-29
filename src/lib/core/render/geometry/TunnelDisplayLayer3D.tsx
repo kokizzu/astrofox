@@ -7,6 +7,8 @@ import {
 	CatmullRomCurve3,
 	Color,
 	CustomBlending,
+	Matrix4,
+	Object3D,
 	OneFactor,
 	Quaternion,
 	TubeGeometry,
@@ -84,6 +86,10 @@ const _bankQuat = new Quaternion();
 const _curveP = new Vector3();
 const _normal = new Vector3();
 const _rotationAxis = new Vector3();
+const _cameraWorldPosition = new Vector3();
+const _cameraLookMatrix = new Matrix4();
+const DEFAULT_CAMERA_AZIMUTH = (45 * Math.PI) / 180;
+const DEFAULT_CAMERA_POLAR = (30 * Math.PI) / 180;
 
 function ensureVectorArraySize(vectors, size: number) {
 	while (vectors.length < size) {
@@ -260,6 +266,7 @@ export function TunnelDisplayLayer3D({
 	display,
 	order,
 	height,
+	sceneProperties,
 	frameData,
 	sceneOpacity,
 	sceneBlendMode,
@@ -291,6 +298,7 @@ export function TunnelDisplayLayer3D({
 	const materialRef = React.useRef(null);
 	const meshRef = React.useRef(null);
 	const geometryRef = React.useRef(null);
+	const groupAnchorRef = React.useRef(null);
 	const curvePointsRef = React.useRef([]);
 	const frameTangentsRef = React.useRef([]);
 	const frameNormalsRef = React.useRef([]);
@@ -313,10 +321,32 @@ export function TunnelDisplayLayer3D({
 	const leadDistance = Math.min(240, tunnelDepth * 0.06 + 100);
 	const trailDistance = Math.min(760, tunnelDepth * 0.24 + 360);
 	const curveTime = timeRef.current * Number(turnSpeed || 0);
-	const cameraZ =
+	const fallbackCameraDistance =
 		Number(height || 0) > 0
 			? Number(height) / 2 / Math.tan(((FOV / 2) * Math.PI) / 180)
 			: 0;
+	const cameraAzimuth = Number(
+		sceneProperties?.cameraAzimuth ?? DEFAULT_CAMERA_AZIMUTH,
+	);
+	const cameraPolar = clamp(
+		Number(sceneProperties?.cameraPolar ?? DEFAULT_CAMERA_POLAR),
+		-Math.PI / 2 + 0.05,
+		Math.PI / 2 - 0.05,
+	);
+	const cameraDistance = Math.max(
+		50,
+		Math.min(
+			5000,
+			Number(sceneProperties?.cameraDistance ?? fallbackCameraDistance) ||
+				fallbackCameraDistance,
+		),
+	);
+	const cameraCosPolar = Math.cos(cameraPolar);
+	const groupPosition = [
+		Math.sin(cameraAzimuth) * cameraCosPolar * cameraDistance,
+		Math.sin(cameraPolar) * cameraDistance,
+		Math.cos(cameraAzimuth) * cameraCosPolar * cameraDistance,
+	];
 	const finalOpacity = clamp(
 		Number(opacity ?? 1) * Number(sceneOpacity ?? 1),
 		0,
@@ -326,6 +356,20 @@ export function TunnelDisplayLayer3D({
 		? CustomBlending
 		: getThreeBlending(sceneBlendMode);
 	const rollRadians = ((Number(bank) || 0) * Math.PI) / 180;
+	if (!groupAnchorRef.current) {
+		groupAnchorRef.current = new Object3D();
+	}
+	_cameraWorldPosition.set(
+		groupPosition[0],
+		groupPosition[1],
+		groupPosition[2],
+	);
+	_cameraLookMatrix.lookAt(
+		_cameraWorldPosition,
+		_worldPoint.set(0, 0, 0),
+		_up.set(0, 1, 0),
+	);
+	groupAnchorRef.current.quaternion.setFromRotationMatrix(_cameraLookMatrix);
 	const uniforms = React.useMemo(
 		() => ({
 			uTime: { value: 0 },
@@ -476,7 +520,11 @@ export function TunnelDisplayLayer3D({
 	});
 
 	return (
-		<group position={[0, 0, cameraZ]} scale={[1, 1, 1]}>
+		<group
+			position={groupPosition}
+			quaternion={groupAnchorRef.current.quaternion}
+			scale={[1, 1, 1]}
+		>
 			<mesh ref={meshRef} renderOrder={order} frustumCulled={false}>
 				<shaderMaterial
 					ref={materialRef}

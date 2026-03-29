@@ -2,8 +2,9 @@
 import { base64ToBytes } from "@/lib/utils/data";
 import React from "react";
 import * as THREE from "three";
-import R3FStageRoot from "./R3FStageRoot";
 import RenderBackend from "./RenderBackend";
+import StageRoot from "./StageRoot";
+import { StageComposer } from "./composer";
 
 const VIDEO_RENDERING = -1;
 
@@ -90,7 +91,7 @@ function readCanvasPixels(canvas, width, height) {
 	return new Uint8Array(context.getImageData(0, 0, w, h).data.buffer);
 }
 
-export default class R3FBackend extends RenderBackend {
+export default class CompositorBackend extends RenderBackend {
 	constructor(stage) {
 		super();
 
@@ -99,13 +100,15 @@ export default class R3FBackend extends RenderBackend {
 		this.fiberModule = null;
 		this.mountPromise = null;
 		this.configuredSize = null;
+		this.composer = null;
 
 		this.initialized = false;
-		this.r3fAvailable = true;
+		this.fiberAvailable = true;
 		this.canvas = null;
 		this.invalidate = null;
 
 		this.graph = { scenes: [] };
+		this.sceneLayersRef = { current: new Map() };
 		this.backgroundColor = stage.properties.backgroundColor;
 		this.size = {
 			width: stage.properties.width,
@@ -117,6 +120,8 @@ export default class R3FBackend extends RenderBackend {
 		this.renderMode = null;
 		this.pendingProperties = {};
 		this.threeExtended = false;
+
+		this.presentFrame = this.presentFrame.bind(this);
 	}
 
 	setRenderMode(mode) {
@@ -141,6 +146,8 @@ export default class R3FBackend extends RenderBackend {
 		if (properties.backgroundColor !== undefined) {
 			this.backgroundColor = properties.backgroundColor;
 		}
+
+		this.composer?.setSize(this.size.width, this.size.height);
 	}
 
 	init({ canvas, width, height, backgroundColor }) {
@@ -237,13 +244,14 @@ export default class R3FBackend extends RenderBackend {
 		const height = Math.max(1, Math.round(this.size.height || 1));
 
 		this.root.render(
-			React.createElement(R3FStageRoot, {
+			React.createElement(StageRoot, {
 				width,
 				height,
-				backgroundColor: this.backgroundColor,
 				scenes: this.graph.scenes,
 				frameData: this.frameData,
 				frameIndex: this.frameIndex,
+				sceneLayersRef: this.sceneLayersRef,
+				onPresent: this.presentFrame,
 			}),
 		);
 
@@ -281,8 +289,8 @@ export default class R3FBackend extends RenderBackend {
 					this.renderRoot(true);
 				})
 				.catch((error) => {
-					this.r3fAvailable = false;
-					console.error("[render] Failed to mount R3F root:", error);
+					this.fiberAvailable = false;
+					console.error("[render] Failed to mount stage root:", error);
 				})
 				.finally(() => {
 					if (!this.root) {
@@ -311,13 +319,31 @@ export default class R3FBackend extends RenderBackend {
 		this.configuredSize = null;
 	}
 
+	presentFrame(gl) {
+		if (!gl) {
+			return;
+		}
+
+		if (!this.composer) {
+			this.composer = new StageComposer(gl, this.size.width, this.size.height);
+		} else if (this.composer.renderer !== gl) {
+			this.composer.setRenderer(gl);
+		}
+
+		const sceneLayers = [...this.sceneLayersRef.current.values()].sort(
+			(a, b) => a.order - b.order,
+		);
+
+		this.composer.composeSceneLayers(sceneLayers, this.backgroundColor);
+	}
+
 	render(frameData) {
 		if (!this.initialized) {
 			return;
 		}
 
-		if (!this.r3fAvailable) {
-			this.setRenderMode("r3f-error");
+		if (!this.fiberAvailable) {
+			this.setRenderMode("compositor-error");
 			return;
 		}
 
@@ -329,11 +355,11 @@ export default class R3FBackend extends RenderBackend {
 
 		if (!this.root) {
 			this.mountRoot();
-			this.setRenderMode("r3f-initializing");
+			this.setRenderMode("compositor-initializing");
 			return;
 		}
 
-		this.setRenderMode("r3f");
+		this.setRenderMode("compositor");
 		this.renderRoot();
 	}
 
@@ -376,6 +402,10 @@ export default class R3FBackend extends RenderBackend {
 	}
 
 	getPixels() {
+		if (this.composer) {
+			return this.composer.getPixels();
+		}
+
 		if (!this.canvas) {
 			return new Uint8Array(4);
 		}
@@ -384,7 +414,7 @@ export default class R3FBackend extends RenderBackend {
 
 		try {
 			return readCanvasPixels(this.canvas, width, height);
-		} catch (_error) {
+		} catch {
 			return new Uint8Array(width * height * 4);
 		}
 	}
@@ -402,9 +432,12 @@ export default class R3FBackend extends RenderBackend {
 
 	dispose() {
 		this.unmountRoot();
+		this.composer?.dispose();
+		this.composer = null;
+		this.sceneLayersRef.current.clear();
 
 		this.initialized = false;
-		this.r3fAvailable = true;
+		this.fiberAvailable = true;
 		this.canvas = null;
 		this.invalidate = null;
 

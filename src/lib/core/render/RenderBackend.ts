@@ -1,8 +1,7 @@
 import type { RenderFrameData } from "@/lib/types";
 
 /**
- * Render backend contract used by the app-level renderer loop.
- * Implementations may be legacy imperative Three.js or @react-three/fiber.
+ * Render pipeline contract used by the app-level renderer loop.
  */
 export default class RenderBackend {
 	/**
