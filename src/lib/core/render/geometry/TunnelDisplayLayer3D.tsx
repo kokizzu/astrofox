@@ -709,10 +709,12 @@ export function TunnelDisplayLayer3D({
 				frustumCulled={false}
 				visible={!shaderEnabled}
 			>
-				<meshBasicMaterial
+				<meshStandardMaterial
 					color={resolvedBackgroundColor}
 					transparent={true}
 					side={BackSide}
+					roughness={0.85}
+					metalness={0.02}
 					depthTest={true}
 					depthWrite={!transparentSurface && finalOpacity > 0}
 					opacity={transparentSurface ? 0 : finalOpacity}
@@ -732,7 +734,7 @@ export function TunnelDisplayLayer3D({
 				frustumCulled={false}
 				visible={!shaderEnabled}
 			>
-				<meshBasicMaterial
+				<meshStandardMaterial
 					color={resolvedLineColor}
 					vertexColors={true}
 					wireframe={true}
@@ -742,6 +744,8 @@ export function TunnelDisplayLayer3D({
 					)}
 					transparent={true}
 					side={BackSide}
+					roughness={0.55}
+					metalness={0.04}
 					depthTest={true}
 					depthWrite={false}
 					opacity={finalOpacity}

@@ -7,7 +7,7 @@ export default class TunnelDisplay extends Display {
 		type: "display",
 		label: "Tunnel",
 		defaultProperties: {
-			color: "#D6ECFF",
+			color: "#FFFFFF",
 			backgroundColor: "#02060A",
 			opacity: 1.0,
 			radius: 180,
