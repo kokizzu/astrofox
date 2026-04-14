@@ -4,40 +4,17 @@ import React from "react";
 
 const DEFAULT_LIGHT_DISTANCE = 700;
 
-const LIGHTING_PRESETS = {
-	Studio: {
-		keyPosition: [-0.42, 1.4, 0.58],
-		fillPosition: [0.8, 0.52, 0.72],
-		rimPosition: [-0.78, 0.38, -0.88],
-		key: 1,
-		fill: 1,
-		rim: 1,
-	},
-	Stage: {
-		keyPosition: [-0.2, 1.8, 0.32],
-		fillPosition: [0.95, 0.36, 0.4],
-		rimPosition: [-0.6, 0.7, -1.05],
-		key: 1.2,
-		fill: 0.4,
-		rim: 1,
-	},
-	Grid: {
-		keyPosition: [-0.62, 1.12, 0.74],
-		fillPosition: [0.94, 0.84, 0.94],
-		rimPosition: [-1.05, -0.2, -1.05],
-		key: 0.9,
-		fill: 1,
-		rim: 0.45,
-	},
-	Flat: {
-		keyPosition: [-0.28, 0.9, 0.2],
-		fillPosition: [0.35, 0.5, 0.3],
-		rimPosition: [-0.35, 0.4, -0.35],
-		key: 0.18,
-		fill: 0.08,
-		rim: 0,
-	},
+const STUDIO_LIGHTING = {
+	keyPosition: [-0.42, 1.4, 0.58],
+	fillPosition: [0.8, 0.52, 0.72],
+	rimPosition: [-0.78, 0.38, -0.88],
+	key: 1,
+	fill: 1,
+	rim: 1,
 };
+const PREVIEW_LIGHT_DISTANCE = 520;
+const PREVIEW_AMBIENT_INTENSITY = 0.6;
+const PREVIEW_KEY_INTENSITY = 1.1;
 
 function scalePosition(position: number[], distance: number) {
 	return position.map((value) => value * distance);
@@ -155,13 +132,15 @@ function syncDirectionalShadow(
 }
 
 function SceneLights3DImpl({ sceneProperties = {}, width, height }) {
+	const previewAmbientRef = React.useRef(null);
+	const previewKeyRef = React.useRef(null);
 	const keyLightRef = React.useRef(null);
 	const fillLightRef = React.useRef(null);
 	const rimLightRef = React.useRef(null);
 
 	useFrame(() => {
 		const {
-			lightingPreset = "Studio",
+			lighting = false,
 			keyLightIntensity = 2.2,
 			fillLightIntensity = 0.75,
 			rimLightIntensity = 0.35,
@@ -175,8 +154,26 @@ function SceneLights3DImpl({ sceneProperties = {}, width, height }) {
 			shadows = true,
 		} = sceneProperties;
 
-		const preset =
-			LIGHTING_PRESETS[String(lightingPreset)] || LIGHTING_PRESETS.Studio;
+		if (!lighting) {
+			setLightIntensity(previewAmbientRef.current, PREVIEW_AMBIENT_INTENSITY);
+			setVectorPosition(
+				previewKeyRef.current,
+				scalePosition(STUDIO_LIGHTING.keyPosition, PREVIEW_LIGHT_DISTANCE),
+			);
+			setLightIntensity(previewKeyRef.current, PREVIEW_KEY_INTENSITY);
+			setLightColor(previewKeyRef.current, "#FFFFFF");
+			setCastShadow(previewKeyRef.current, false);
+			setLightIntensity(keyLightRef.current, 0);
+			setLightIntensity(fillLightRef.current, 0);
+			setLightIntensity(rimLightRef.current, 0);
+			setCastShadow(keyLightRef.current, false);
+			return;
+		}
+
+		setLightIntensity(previewAmbientRef.current, 0);
+		setLightIntensity(previewKeyRef.current, 0);
+		setCastShadow(previewKeyRef.current, false);
+
 		const resolvedKeyDistance = Math.max(
 			50,
 			Number(keyLightDistance ?? lightDistance) || 50,
@@ -192,12 +189,12 @@ function SceneLights3DImpl({ sceneProperties = {}, width, height }) {
 
 		setVectorPosition(
 			keyLightRef.current,
-			scalePosition(preset.keyPosition, resolvedKeyDistance),
+			scalePosition(STUDIO_LIGHTING.keyPosition, resolvedKeyDistance),
 		);
 		setLightIntensity(
 			keyLightRef.current,
 			Math.max(0, Number(keyLightIntensity) || 0) *
-				preset.key *
+				STUDIO_LIGHTING.key *
 				getDistanceIntensityScale(resolvedKeyDistance),
 		);
 		setLightColor(keyLightRef.current, String(lightColor || "#FFFFFF"));
@@ -211,24 +208,24 @@ function SceneLights3DImpl({ sceneProperties = {}, width, height }) {
 
 		setVectorPosition(
 			fillLightRef.current,
-			scalePosition(preset.fillPosition, resolvedFillDistance),
+			scalePosition(STUDIO_LIGHTING.fillPosition, resolvedFillDistance),
 		);
 		setLightIntensity(
 			fillLightRef.current,
 			Math.max(0, Number(fillLightIntensity) || 0) *
-				preset.fill *
+				STUDIO_LIGHTING.fill *
 				getDistanceIntensityScale(resolvedFillDistance),
 		);
 		setLightColor(fillLightRef.current, String(fillLightColor || "#FFFFFF"));
 
 		setVectorPosition(
 			rimLightRef.current,
-			scalePosition(preset.rimPosition, resolvedRimDistance),
+			scalePosition(STUDIO_LIGHTING.rimPosition, resolvedRimDistance),
 		);
 		setLightIntensity(
 			rimLightRef.current,
 			Math.max(0, Number(rimLightIntensity) || 0) *
-				preset.rim *
+				STUDIO_LIGHTING.rim *
 				getDistanceIntensityScale(resolvedRimDistance),
 		);
 		setLightColor(rimLightRef.current, String(rimLightColor || "#F3F1FF"));
@@ -236,6 +233,8 @@ function SceneLights3DImpl({ sceneProperties = {}, width, height }) {
 
 	return (
 		<>
+			<ambientLight ref={previewAmbientRef} />
+			<directionalLight ref={previewKeyRef} />
 			<directionalLight
 				ref={keyLightRef}
 				shadow-mapSize-width={2048}

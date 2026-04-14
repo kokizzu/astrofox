@@ -35,7 +35,21 @@ const blendOptions = [
 	"Reflect",
 ];
 
-const lightingPresetOptions = ["Studio", "Stage", "Grid", "Flat"];
+function resolveInitialSceneProperties(properties?: Record<string, unknown>) {
+	if (!properties) {
+		return properties;
+	}
+
+	// Preserve lighting for older saved scenes that predate the explicit toggle.
+	if (properties.lighting === undefined) {
+		return {
+			...properties,
+			lighting: true,
+		};
+	}
+
+	return properties;
+}
 
 interface SceneElement {
 	id: string;
@@ -66,8 +80,8 @@ export default class Scene extends Display {
 			cameraDistance: 0,
 			cameraAzimuth: (45 * Math.PI) / 180,
 			cameraPolar: (30 * Math.PI) / 180,
-			lightingPreset: "Studio",
 			shadows: true,
+			lighting: false,
 			keyLightIntensity: 2.2,
 			keyLightDistance: 700,
 			lightColor: "#FFFFFF",
@@ -103,13 +117,12 @@ export default class Scene extends Display {
 				hidden: (display: { properties: Record<string, unknown> }) =>
 					!display.properties.mask,
 			},
-			lightingPreset: {
-				label: "Lighting",
-				type: "select",
-				items: lightingPresetOptions,
-			},
 			shadows: {
 				label: "Shadows",
+				type: "toggle",
+			},
+			lighting: {
+				label: "Lighting",
 				type: "toggle",
 			},
 			keyLightIntensity: {
@@ -121,6 +134,8 @@ export default class Scene extends Display {
 				withRange: true,
 				withReactor: true,
 				group: "Key",
+				hidden: (display: { properties: Record<string, unknown> }) =>
+					!display.properties.lighting,
 			},
 			keyLightDistance: {
 				label: "Distance",
@@ -131,11 +146,15 @@ export default class Scene extends Display {
 				withRange: true,
 				withReactor: true,
 				group: "Key",
+				hidden: (display: { properties: Record<string, unknown> }) =>
+					!display.properties.lighting,
 			},
 			lightColor: {
 				label: "Color",
 				type: "color",
 				group: "Key",
+				hidden: (display: { properties: Record<string, unknown> }) =>
+					!display.properties.lighting,
 			},
 			fillLightIntensity: {
 				label: "Intensity",
@@ -146,6 +165,8 @@ export default class Scene extends Display {
 				withRange: true,
 				withReactor: true,
 				group: "Fill",
+				hidden: (display: { properties: Record<string, unknown> }) =>
+					!display.properties.lighting,
 			},
 			fillLightDistance: {
 				label: "Distance",
@@ -156,11 +177,15 @@ export default class Scene extends Display {
 				withRange: true,
 				withReactor: true,
 				group: "Fill",
+				hidden: (display: { properties: Record<string, unknown> }) =>
+					!display.properties.lighting,
 			},
 			fillLightColor: {
 				label: "Color",
 				type: "color",
 				group: "Fill",
+				hidden: (display: { properties: Record<string, unknown> }) =>
+					!display.properties.lighting,
 			},
 			rimLightIntensity: {
 				label: "Intensity",
@@ -171,6 +196,8 @@ export default class Scene extends Display {
 				withRange: true,
 				withReactor: true,
 				group: "Rim",
+				hidden: (display: { properties: Record<string, unknown> }) =>
+					!display.properties.lighting,
 			},
 			rimLightDistance: {
 				label: "Distance",
@@ -181,11 +208,15 @@ export default class Scene extends Display {
 				withRange: true,
 				withReactor: true,
 				group: "Rim",
+				hidden: (display: { properties: Record<string, unknown> }) =>
+					!display.properties.lighting,
 			},
 			rimLightColor: {
 				label: "Color",
 				type: "color",
 				group: "Rim",
+				hidden: (display: { properties: Record<string, unknown> }) =>
+					!display.properties.lighting,
 			},
 		},
 	};
@@ -195,7 +226,7 @@ export default class Scene extends Display {
 	declare stage: unknown;
 
 	constructor(properties?: Record<string, unknown>) {
-		super(Scene, properties);
+		super(Scene, resolveInitialSceneProperties(properties));
 
 		this.stage = null;
 		this.displays = new EntityList();
@@ -203,7 +234,6 @@ export default class Scene extends Display {
 
 		this.getSize = this.getSize.bind(this);
 	}
-
 	getSize(): { width: number; height: number } {
 		const stage = this.stage as {
 			getSize?: () => { width: number; height: number };
