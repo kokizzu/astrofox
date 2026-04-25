@@ -93,11 +93,7 @@ export default class CanvasRadial extends Entity {
 
 		for (let i = 0; i < totalSlots; i++) {
 			// For mirrored mode, bars go 0..count-1 on the right half, then count-1..0 on the left half
-			const dataIdx = isMirror
-				? i < count
-					? i
-					: totalSlots - 1 - i
-				: i;
+			const dataIdx = isMirror ? (i < count ? i : totalSlots - 1 - i) : i;
 
 			const val = values[dataIdx];
 			const barHeight = val * maxBarHeight;
@@ -147,11 +143,7 @@ export default class CanvasRadial extends Entity {
 			}
 
 			for (let i = 0; i < totalSlots; i++) {
-				const dataIdx = isMirror
-					? i < count
-						? i
-						: totalSlots - 1 - i
-					: i;
+				const dataIdx = isMirror ? (i < count ? i : totalSlots - 1 - i) : i;
 
 				const val = values[dataIdx];
 				const barHeight = val * maxBarHeight * shadow;

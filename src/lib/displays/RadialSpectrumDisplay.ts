@@ -1,8 +1,8 @@
+import { FFT_SIZE, SAMPLE_RATE } from "@/app/constants";
 import FFTParser from "@/lib/audio/FFTParser";
 import CanvasRadial from "@/lib/canvas/CanvasRadial";
 import Display from "@/lib/core/Display";
 import { property, stageHeight, stageWidth } from "@/lib/utils/controls";
-import { FFT_SIZE, SAMPLE_RATE } from "@/app/constants";
 
 export default class RadialSpectrumDisplay extends Display {
 	declare radial: CanvasRadial;

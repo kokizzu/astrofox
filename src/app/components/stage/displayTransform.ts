@@ -16,9 +16,15 @@ type TransformableDisplay = {
 	shape?: { canvas?: CanvasLike };
 	wave?: { canvas?: CanvasLike };
 	bars?: { canvas?: CanvasLike };
+	radial?: { canvas?: CanvasLike };
+	ring?: { canvas?: CanvasLike };
 };
 
-export type DisplayTransformKind = "size" | "text";
+export type DisplayTransformKind =
+	| "size"
+	| "text"
+	| "radialSpectrum"
+	| "waveformRing";
 
 export interface DisplayTransformFrame {
 	id: string;
@@ -36,14 +42,22 @@ export interface DisplayTransformFrame {
 	size: number;
 	barHeight: number;
 	barShadowHeight: number;
+	radius: number;
+	innerRadius: number;
+	amplitude: number;
+	lineWidth: number;
 }
+
+const CIRCULAR_PADDING = 4;
 
 function getCanvasSize(display: TransformableDisplay) {
 	const canvas =
 		display.text?.canvas ||
 		display.shape?.canvas ||
 		display.wave?.canvas ||
-		display.bars?.canvas;
+		display.bars?.canvas ||
+		display.radial?.canvas ||
+		display.ring?.canvas;
 
 	if (!canvas?.width || !canvas?.height) {
 		return null;
@@ -76,6 +90,37 @@ function getMediaSize(display: TransformableDisplay) {
 	}
 
 	return null;
+}
+
+function getRadialSpectrumSize(properties: Record<string, unknown>) {
+	const radius = Math.max(1, Number(properties.radius ?? 150));
+	const innerRadius = Math.max(0, Number(properties.innerRadius ?? 80));
+	const size = (radius + innerRadius) * 2 + CIRCULAR_PADDING;
+
+	return {
+		width: size,
+		height: size,
+		radius,
+		innerRadius,
+		amplitude: 0,
+		lineWidth: 0,
+	};
+}
+
+function getWaveformRingSize(properties: Record<string, unknown>) {
+	const radius = Math.max(1, Number(properties.radius ?? 160));
+	const amplitude = Math.max(0, Number(properties.amplitude ?? 80));
+	const lineWidth = Math.max(1, Number(properties.lineWidth ?? 2));
+	const size = (radius + amplitude + lineWidth + 2) * 2;
+
+	return {
+		width: size,
+		height: size,
+		radius,
+		innerRadius: 0,
+		amplitude,
+		lineWidth,
+	};
 }
 
 export function getDisplayTransformFrame(
@@ -121,6 +166,66 @@ export function getDisplayTransformFrame(
 			size,
 			barHeight: 0,
 			barShadowHeight: 0,
+			radius: 0,
+			innerRadius: 0,
+			amplitude: 0,
+			lineWidth: 0,
+		};
+	}
+
+	if (display.name === "RadialSpectrumDisplay") {
+		const circularSize = getRadialSpectrumSize(properties);
+		const renderWidth = circularSize.width * displayZoom;
+		const renderHeight = circularSize.height * displayZoom;
+
+		return {
+			id: String((display as { id?: string }).id || ""),
+			name: display.name || "",
+			kind: "radialSpectrum",
+			x,
+			y,
+			rotation,
+			displayZoom,
+			renderWidth,
+			renderHeight,
+			widthOffset: 0,
+			heightOffset: 0,
+			fixedAspect: true,
+			size,
+			barHeight: 0,
+			barShadowHeight: 0,
+			radius: circularSize.radius,
+			innerRadius: circularSize.innerRadius,
+			amplitude: 0,
+			lineWidth: 0,
+		};
+	}
+
+	if (display.name === "WaveformRingDisplay") {
+		const circularSize = getWaveformRingSize(properties);
+		const renderWidth = circularSize.width * displayZoom;
+		const renderHeight = circularSize.height * displayZoom;
+
+		return {
+			id: String((display as { id?: string }).id || ""),
+			name: display.name || "",
+			kind: "waveformRing",
+			x,
+			y,
+			rotation,
+			displayZoom,
+			renderWidth,
+			renderHeight,
+			widthOffset: 0,
+			heightOffset: 0,
+			fixedAspect: true,
+			size,
+			barHeight: 0,
+			barShadowHeight: 0,
+			radius: circularSize.radius,
+			innerRadius: 0,
+			amplitude: circularSize.amplitude,
+			lineWidth: circularSize.lineWidth,
 		};
 	}
 
@@ -180,6 +285,10 @@ export function getDisplayTransformFrame(
 		size,
 		barHeight: Math.max(0, heightProperty),
 		barShadowHeight: isBarSpectrum ? shadowHeightProperty : 0,
+		radius: 0,
+		innerRadius: 0,
+		amplitude: 0,
+		lineWidth: 0,
 	};
 }
 

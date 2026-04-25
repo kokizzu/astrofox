@@ -88,6 +88,28 @@ function pickUniformScale(...values: number[]) {
 	return Math.max(0.05, nextScale);
 }
 
+function getCircularResizeProperties(
+	frame: DisplayTransformFrame,
+	scale: number,
+) {
+	if (frame.kind === "radialSpectrum") {
+		return {
+			radius: roundValue(Math.max(1, frame.radius * scale)),
+			innerRadius: roundValue(Math.max(0, frame.innerRadius * scale)),
+		};
+	}
+
+	if (frame.kind === "waveformRing") {
+		return {
+			radius: roundValue(Math.max(1, frame.radius * scale)),
+			amplitude: roundValue(Math.max(0, frame.amplitude * scale)),
+			lineWidth: roundValue(Math.max(1, frame.lineWidth * scale)),
+		};
+	}
+
+	return null;
+}
+
 function buildDragResult(
 	frame: DisplayTransformFrame,
 	startProperties: Record<string, unknown>,
@@ -148,12 +170,18 @@ function buildDragResult(
 		renderHeight = Math.max(minRenderHeight, frame.renderHeight * scale);
 		const nextBaseWidth = renderWidth / frame.displayZoom;
 		const nextBaseHeight = renderHeight / frame.displayZoom;
-		nextProperties.width = roundValue(
-			Math.max(1, nextBaseWidth - frame.widthOffset),
-		);
-		nextProperties.height = roundValue(
-			Math.max(1, nextBaseHeight - frame.heightOffset),
-		);
+		const circularProperties = getCircularResizeProperties(frame, scale);
+
+		if (circularProperties) {
+			Object.assign(nextProperties, circularProperties);
+		} else {
+			nextProperties.width = roundValue(
+				Math.max(1, nextBaseWidth - frame.widthOffset),
+			);
+			nextProperties.height = roundValue(
+				Math.max(1, nextBaseHeight - frame.heightOffset),
+			);
+		}
 	} else {
 		if (handleX !== 0) {
 			renderWidth = Math.max(
