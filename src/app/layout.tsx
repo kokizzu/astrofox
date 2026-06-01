@@ -12,6 +12,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-icon.png" />
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <meta name="theme-color" content="#171717" />
         {process.env.NODE_ENV === 'production' && (
           <Script
             defer
@@ -21,7 +26,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
         )}
       </head>
-
       <body className={`${fontVariables} ${inter.className}`}>{children}</body>
     </html>
   );
