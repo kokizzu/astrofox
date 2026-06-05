@@ -17,8 +17,11 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useTranslations } from "next-intl";
 
 export default function LeftPanel() {
+	const t = useTranslations("panels");
+
 	async function handleAddScene() {
 		const scene = await addScene();
 		setActiveElementId(scene?.id);
@@ -37,7 +40,7 @@ export default function LeftPanel() {
 					<ResizablePanel defaultSize={60} minSize="40px">
 						<div className="flex flex-col h-full overflow-hidden">
 							<PanelHeader
-								title="Layers"
+								title={t("layers")}
 								actions={
 									<TooltipProvider>
 										<Tooltip>
@@ -57,7 +60,7 @@ export default function LeftPanel() {
 												sideOffset={6}
 												className="rounded bg-neutral-950 px-3 py-2 text-sm text-neutral-200 shadow-lg z-100"
 											>
-												Add scene
+												{t("addScene")}
 											</TooltipContent>
 										</Tooltip>
 									</TooltipProvider>
@@ -70,7 +73,7 @@ export default function LeftPanel() {
 					<ResizablePanel defaultSize={40} minSize="40px">
 						<div className="flex flex-col h-full overflow-hidden bg-neutral-900">
 							<PanelHeader
-								title="Reactors"
+								title={t("reactors")}
 								actions={
 									<TooltipProvider>
 										<Tooltip>
@@ -80,7 +83,7 @@ export default function LeftPanel() {
 														type="button"
 														className="text-neutral-100 bg-neutral-900 min-h-6 min-w-6 text-center rounded inline-flex justify-center items-center cursor-default shrink-0 [&:hover]:bg-neutral-800"
 														onClick={handleAddReactor}
-														aria-label="Add reactor"
+														aria-label={t("addReactor")}
 													/>
 												}
 											>
@@ -91,7 +94,7 @@ export default function LeftPanel() {
 												sideOffset={6}
 												className="rounded bg-neutral-950 px-3 py-2 text-sm text-neutral-200 shadow-lg z-100"
 											>
-												Add reactor
+												{t("addReactor")}
 											</TooltipContent>
 										</Tooltip>
 									</TooltipProvider>

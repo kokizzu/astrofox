@@ -17,6 +17,7 @@ import {
 	Settings2,
 	Video,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import React from "react";
 
 type MenuAction =
@@ -42,7 +43,6 @@ interface MenuSection {
 }
 
 interface SidebarItem {
-	label: string;
 	action: MenuAction;
 	icon: LucideIcon;
 }
@@ -56,6 +56,16 @@ const ACTION_ICONS: Record<MenuAction, LucideIcon> = {
 	"save-video": Video,
 	"edit-canvas": Settings2,
 	"open-dev-tools": Settings2,
+};
+
+const ACTION_TRANSLATION_KEYS: Record<string, string> = {
+	"new-project": "newProject",
+	"open-project": "openProject",
+	"save-project": "saveProject",
+	"load-audio": "loadAudio",
+	"save-image": "saveImage",
+	"save-video": "saveVideo",
+	"edit-canvas": "projectSettings",
 };
 
 const typedMenuConfig = menuConfig as MenuSection[];
@@ -72,7 +82,6 @@ function getSidebarSections(): SidebarItem[][] {
 						Boolean(item.label && item.action && ACTION_ICONS[item.action]),
 				)
 				.map((item) => ({
-					label: item.label,
 					action: item.action,
 					icon: ACTION_ICONS[item.action],
 				})),
@@ -81,6 +90,7 @@ function getSidebarSections(): SidebarItem[][] {
 }
 
 export default function SidebarNav() {
+	const t = useTranslations("menu");
 	const sections = getSidebarSections();
 
 	return (
@@ -103,7 +113,7 @@ export default function SidebarNav() {
 													variant="ghost"
 													size="icon-sm"
 													className="w-full bg-transparent text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100"
-													aria-label={item.label}
+													aria-label={ACTION_TRANSLATION_KEYS[item.action] ? t(ACTION_TRANSLATION_KEYS[item.action]) : item.action}
 													onClick={() => handleMenuAction(item.action)}
 												/>
 											}
@@ -115,7 +125,7 @@ export default function SidebarNav() {
 											sideOffset={10}
 											className="rounded bg-neutral-950 px-3 py-2 text-sm text-neutral-200 shadow-lg z-100"
 										>
-											{item.label}
+											{ACTION_TRANSLATION_KEYS[item.action] ? t(ACTION_TRANSLATION_KEYS[item.action]) : item.action}
 										</TooltipContent>
 									</Tooltip>
 								);

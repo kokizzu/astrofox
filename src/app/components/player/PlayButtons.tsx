@@ -10,9 +10,11 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import classNames from "classnames";
+import { useTranslations } from "next-intl";
 import React, { useEffect } from "react";
 
 export default function PlayButtons() {
+	const t = useTranslations("player");
 	const forceUpdate = useForceUpdate();
 	const isVideoRecording = useAppStore((state) => state.isVideoRecording);
 	const { liveModeEnabled, mode } = useAudioStore((state) => ({
@@ -55,31 +57,31 @@ export default function PlayButtons() {
 	}
 
 	const playTitle = isVideoRecording
-		? "Recording..."
+		? t("recording")
 		: !liveModeEnabled
 			? playing
-				? "Pause"
-				: "Play"
+				? t("pause")
+				: t("play")
 			: hasSource
 				? playing
 					? mode === "file"
-						? "Pause"
-						: "Pause live input"
+						? t("pause")
+						: t("pauseLiveInput")
 					: mode === "file"
-						? "Play"
-						: "Start live input"
+						? t("play")
+						: t("startLiveInput")
 				: mode === "microphone"
-					? "Connect microphone"
+					? t("connectMicrophone")
 					: mode === "desktop"
-						? "Capture desktop audio"
+						? t("captureDesktopAudio")
 						: mode === "midi"
-							? "Connect MIDI input"
-							: "Load audio";
+							? t("connectMidi")
+							: t("loadAudio");
 	const stopTitle = hasSource
 		? !liveModeEnabled || mode === "file"
-			? "Stop"
-			: "Stop live input"
-		: "No active input";
+			? t("stop")
+			: t("stopLiveInput")
+		: t("noActiveInput");
 
 	return (
 		<div className={"whitespace-nowrap"}>
@@ -149,7 +151,7 @@ export default function PlayButtons() {
 						sideOffset={6}
 						className="rounded bg-neutral-950 px-3 py-2 text-sm text-neutral-200 shadow-lg z-100"
 					>
-						{isVideoRecording ? "Stop recording" : stopTitle}
+						{isVideoRecording ? t("stopRecording") : stopTitle}
 					</TooltipContent>
 				</Tooltip>
 			</TooltipProvider>

@@ -1,8 +1,11 @@
 import { createRequire } from "node:module";
 import path from "node:path";
+import createNextIntlPlugin from "next-intl/plugin";
 
 const require = createRequire(import.meta.url);
 const { version: appVersion } = require("./package.json");
+
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 /** @type {import("next").NextConfig} */
 const resolveFromRoot = (target) => path.resolve(process.cwd(), target);
@@ -49,4 +52,4 @@ const nextConfig = {
 	},
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

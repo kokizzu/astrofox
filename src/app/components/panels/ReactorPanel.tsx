@@ -20,6 +20,7 @@ import {
 import CanvasBars from "@/lib/canvas/CanvasBars";
 import CanvasMeter from "@/lib/canvas/CanvasMeter";
 import { inputValueToProps } from "@/lib/utils/react";
+import { useTranslations } from "next-intl";
 import React, { useEffect, useRef } from "react";
 
 const SPECTRUM_WIDTH = REACTOR_BARS * (REACTOR_BAR_WIDTH + REACTOR_BAR_SPACING);
@@ -78,6 +79,7 @@ interface ReactorControlProps {
 }
 
 const ReactorControl = ({ reactor }: ReactorControlProps) => {
+	const t = useTranslations("reactorPanel");
 	const spectrum = useRef<CanvasBars | null>(null);
 	const meter = useRef<CanvasMeter | null>(null);
 	const spectrumCanvas = useRef<HTMLCanvasElement>(null);
@@ -227,7 +229,7 @@ const ReactorControl = ({ reactor }: ReactorControlProps) => {
 						sideOffset={6}
 						className="rounded bg-neutral-950 px-3 py-2 text-sm text-neutral-200 shadow-lg z-100"
 					>
-						Close panel
+						{t("closePanel")}
 					</TooltipContent>
 				</Tooltip>
 			</TooltipProvider>

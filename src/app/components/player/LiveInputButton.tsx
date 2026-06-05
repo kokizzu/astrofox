@@ -6,10 +6,12 @@ import useAudioStore, {
 import { player } from "@/app/global";
 import useForceUpdate from "@/app/hooks/useForceUpdate";
 import classNames from "classnames";
+import { useTranslations } from "next-intl";
 import { Mic, Monitor } from "lucide-react";
 import { useEffect } from "react";
 
 export default function LiveInputButton() {
+	const t = useTranslations("player");
 	const forceUpdate = useForceUpdate();
 	const { liveInputMode, loading, microphoneDevices, desktopAudioSupported } =
 		useAudioStore((state) => ({
@@ -87,7 +89,9 @@ export default function LiveInputButton() {
 				},
 			)}
 			aria-label={
-				active ? `Stop ${liveInputMode} input` : `Start ${liveInputMode} input`
+				active
+					? t("stopInput", { mode: liveInputMode })
+					: t("startInput", { mode: liveInputMode })
 			}
 			aria-pressed={active}
 			disabled={disabled}

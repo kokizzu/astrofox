@@ -4,6 +4,7 @@ import useProject, {
 } from "@/app/actions/project";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
+import { useTranslations } from "next-intl";
 import React, { useState } from "react";
 
 interface RelinkMediaDialogProps {
@@ -11,6 +12,8 @@ interface RelinkMediaDialogProps {
 }
 
 export default function RelinkMediaDialog({ onClose }: RelinkMediaDialogProps) {
+	const t = useTranslations("relinkMedia");
+	const tc = useTranslations("common");
 	const mediaRefs = useProject(
 		(state) => state.unresolvedMediaRefs,
 	) as MediaRef[];
@@ -26,12 +29,12 @@ export default function RelinkMediaDialog({ onClose }: RelinkMediaDialogProps) {
 		return (
 			<div className="flex min-h-[14rem] min-w-[32rem] max-w-full flex-1 flex-col">
 				<div className="flex-1 p-4 text-sm opacity-[0.8]">
-					All media links are resolved.
+					{t("allResolved")}
 				</div>
 				<div className="shrink-0 bg-neutral-800 px-4 py-3">
 					<DialogFooter className="sm:justify-end">
 						<Button variant="default" size="sm" onClick={onClose}>
-							Close
+							{tc("close")}
 						</Button>
 					</DialogFooter>
 				</div>
@@ -43,8 +46,7 @@ export default function RelinkMediaDialog({ onClose }: RelinkMediaDialogProps) {
 		<div className="flex min-h-[16rem] min-w-[32rem] max-w-full flex-1 flex-col">
 			<div className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-auto p-4">
 				<div className={"text-sm opacity-[0.85]"}>
-					Some local media files could not be loaded automatically. Relink each
-					source to render the project correctly.
+					{t("relinkMessage")}
 				</div>
 				<div className={"flex flex-col gap-1.5"}>
 					{mediaRefs.map((ref) => (
@@ -72,7 +74,9 @@ export default function RelinkMediaDialog({ onClose }: RelinkMediaDialogProps) {
 								disabled={loadingDisplayId === ref.displayId}
 								onClick={() => handleRelink(ref)}
 							>
-								{loadingDisplayId === ref.displayId ? "Loading..." : "Relink"}
+								{loadingDisplayId === ref.displayId
+									? tc("loading")
+									: t("relink")}
 							</Button>
 						</div>
 					))}
@@ -81,7 +85,7 @@ export default function RelinkMediaDialog({ onClose }: RelinkMediaDialogProps) {
 			<div className="shrink-0 bg-neutral-800 px-4 py-3">
 				<DialogFooter className="sm:justify-end">
 					<Button variant="default" size="sm" onClick={onClose}>
-						Close
+						{tc("close")}
 					</Button>
 				</DialogFooter>
 			</div>

@@ -3,6 +3,7 @@ import useStage, { updateCanvas } from "@/app/actions/stage";
 import { Setting, Settings } from "@/app/components/controls";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
+import { useTranslations } from "next-intl";
 import React, { useState } from "react";
 
 type CanvasSettingsProps = {
@@ -25,38 +26,12 @@ interface AspectOption {
 
 const CANVAS_BASE_SIZES = [480, 720, 1080];
 
-const CANVAS_ASPECT_OPTIONS: AspectOption[] = [
-	{ label: "Square", value: "1:1", widthRatio: 1, heightRatio: 1 },
-	{ label: "Portrait (9:16)", value: "9:16", widthRatio: 9, heightRatio: 16 },
-	{
-		label: "Landscape (16:9)",
-		value: "16:9",
-		widthRatio: 16,
-		heightRatio: 9,
-	},
-	{
-		label: "Mobile portrait (3:4)",
-		value: "3:4",
-		widthRatio: 3,
-		heightRatio: 4,
-	},
-	{
-		label: "Mobile landscape (4:3)",
-		value: "4:3",
-		widthRatio: 4,
-		heightRatio: 3,
-	},
-];
-
 function toEven(value: number) {
 	return Math.max(2, Math.round(value / 2) * 2);
 }
 
-function getAspectByValue(value: string) {
-	return (
-		CANVAS_ASPECT_OPTIONS.find((aspect) => aspect.value === value) ||
-		CANVAS_ASPECT_OPTIONS[2]
-	);
+function getAspectByValue(value: string, options: AspectOption[]) {
+	return options.find((aspect) => aspect.value === value) || options[2];
 }
 
 function getNearestBaseSize(size: number) {
@@ -67,10 +42,14 @@ function getNearestBaseSize(size: number) {
 	}, CANVAS_BASE_SIZES[0]);
 }
 
-function getInitialAspect(width: number, height: number) {
+function getInitialAspect(
+	width: number,
+	height: number,
+	options: AspectOption[],
+) {
 	const ratio = width > 0 && height > 0 ? width / height : 16 / 9;
 
-	return CANVAS_ASPECT_OPTIONS.reduce(
+	return options.reduce(
 		(nearest, aspect) => {
 			const currentRatio = aspect.widthRatio / aspect.heightRatio;
 
@@ -82,8 +61,12 @@ function getInitialAspect(width: number, height: number) {
 	).value;
 }
 
-function getCanvasDimensions(baseSize: number, aspectValue: string) {
-	const aspect = getAspectByValue(aspectValue);
+function getCanvasDimensions(
+	baseSize: number,
+	aspectValue: string,
+	options: AspectOption[],
+) {
+	const aspect = getAspectByValue(aspectValue, options);
 	const ratio = aspect.widthRatio / aspect.heightRatio;
 
 	if (ratio >= 1) {
@@ -100,6 +83,37 @@ function getCanvasDimensions(baseSize: number, aspectValue: string) {
 }
 
 export default function CanvasSettings({ onClose }: CanvasSettingsProps) {
+	const t = useTranslations("canvasSettings");
+	const tc = useTranslations("common");
+
+	const aspectOptions: AspectOption[] = [
+		{ label: t("square"), value: "1:1", widthRatio: 1, heightRatio: 1 },
+		{
+			label: t("portrait916"),
+			value: "9:16",
+			widthRatio: 9,
+			heightRatio: 16,
+		},
+		{
+			label: t("landscape169"),
+			value: "16:9",
+			widthRatio: 16,
+			heightRatio: 9,
+		},
+		{
+			label: t("mobilePortrait34"),
+			value: "3:4",
+			widthRatio: 3,
+			heightRatio: 4,
+		},
+		{
+			label: t("mobileLandscape43"),
+			value: "4:3",
+			widthRatio: 4,
+			heightRatio: 3,
+		},
+	];
+
 	const stageConfig = useStage((state) => state);
 	const projectName = useProject((state) => state.projectName);
 	const [state, setState] = useState({
@@ -108,7 +122,7 @@ export default function CanvasSettings({ onClose }: CanvasSettingsProps) {
 		baseSize: getNearestBaseSize(
 			Math.min(stageConfig.width, stageConfig.height),
 		),
-		aspect: getInitialAspect(stageConfig.width, stageConfig.height),
+		aspect: getInitialAspect(stageConfig.width, stageConfig.height, aspectOptions),
 	});
 	const {
 		projectName: draftProjectName,
@@ -116,7 +130,7 @@ export default function CanvasSettings({ onClose }: CanvasSettingsProps) {
 		aspect,
 		backgroundColor,
 	} = state;
-	const { width, height } = getCanvasDimensions(baseSize, aspect);
+	const { width, height } = getCanvasDimensions(baseSize, aspect, aspectOptions);
 
 	function handleChange(props: Partial<CanvasSettingsState>) {
 		setState((current) => ({ ...current, ...props }));
@@ -140,7 +154,7 @@ export default function CanvasSettings({ onClose }: CanvasSettingsProps) {
 					onChange={handleChange as (props: Record<string, unknown>) => void}
 				>
 					<Setting
-						label="Project Title"
+						label={t("projectTitle")}
 						type="text"
 						name="projectName"
 						value={draftProjectName}
@@ -149,16 +163,16 @@ export default function CanvasSettings({ onClose }: CanvasSettingsProps) {
 						autoSelect
 					/>
 					<Setting
-						label="Format"
+						label={t("format")}
 						type="select"
 						name="aspect"
 						value={aspect}
-						items={CANVAS_ASPECT_OPTIONS}
+						items={aspectOptions}
 						width={180}
 						optionsWidth={220}
 					/>
 					<Setting
-						label="Size"
+						label={t("size")}
 						type="select"
 						name="baseSize"
 						value={baseSize}
@@ -171,11 +185,11 @@ export default function CanvasSettings({ onClose }: CanvasSettingsProps) {
 					<div className="mb-4 flex items-center">
 						<div style={{ width: "50%" }} />
 						<div style={{ width: "50%" }} className="text-sm text-neutral-400">
-							Output: {width} x {height}
+							{t("output", { width, height })}
 						</div>
 					</div>
 					<Setting
-						label="Background Color"
+						label={t("backgroundColor")}
 						type="color"
 						name="backgroundColor"
 						value={backgroundColor}
@@ -185,10 +199,10 @@ export default function CanvasSettings({ onClose }: CanvasSettingsProps) {
 			<div className="shrink-0 bg-neutral-800 px-4 py-3">
 				<DialogFooter className="justify-end sm:justify-end">
 					<Button variant="default" size="sm" onClick={handleSave}>
-						OK
+						{tc("ok")}
 					</Button>
 					<Button variant="default" size="sm" onClick={handleCancel}>
-						Cancel
+						{tc("cancel")}
 					</Button>
 				</DialogFooter>
 			</div>

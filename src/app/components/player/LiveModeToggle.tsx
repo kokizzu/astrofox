@@ -7,6 +7,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import classNames from "classnames";
+import { useTranslations } from "next-intl";
 import { Mic, X } from "lucide-react";
 
 interface LiveModeToggleProps {
@@ -18,10 +19,11 @@ export default function LiveModeToggle({
 	mode,
 	className,
 }: LiveModeToggleProps) {
+	const t = useTranslations("player");
 	const liveModeEnabled = useAudioStore((state) => state.liveModeEnabled);
 	const action = mode || (liveModeEnabled ? "close" : "enable");
 	const enabling = action === "enable";
-	const label = enabling ? "Enable input mode" : "Close input mode";
+	const label = enabling ? t("enableInputMode") : t("closeInputMode");
 
 	return (
 		<TooltipProvider>

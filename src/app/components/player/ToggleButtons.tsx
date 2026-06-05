@@ -10,10 +10,12 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import classNames from "classnames";
+import { useTranslations } from "next-intl";
 import type { LucideIcon } from "lucide-react";
 import React from "react";
 
 export default function ToggleButtons() {
+	const t = useTranslations("player");
 	const isVideoRecording = useAppStore((state) => state.isVideoRecording);
 	const liveModeEnabled = useAudioStore((state) => state.liveModeEnabled);
 	const forceUpdate = useForceUpdate();
@@ -32,7 +34,7 @@ export default function ToggleButtons() {
 		<div className={"flex [&.is-focused_.button]:opacity-[1]"}>
 			<ToggleButton
 				icon={Cycle}
-				title="Repeat"
+				title={t("repeat")}
 				enabled={looping}
 				onClick={handleLoopButtonClick}
 			/>

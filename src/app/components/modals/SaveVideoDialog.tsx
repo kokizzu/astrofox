@@ -13,6 +13,7 @@ import ExportWaveform from "@/app/components/modals/ExportWaveform";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
+import { useTranslations } from "next-intl";
 import React, { useEffect, useRef, useState } from "react";
 
 type SaveVideoDialogProps = {
@@ -46,6 +47,8 @@ export default function SaveVideoDialog({
 	endTime = initialTotalDuration,
 	includeAudio = true,
 }: SaveVideoDialogProps) {
+	const t = useTranslations("saveVideo");
+	const tc = useTranslations("common");
 	const [fileHandle, setFileHandle] = useState(initialFileHandle);
 	const [filePath, setFilePath] = useState(initialFilePath);
 	const [audioSource, setAudioSource] = useState<File | null>(
@@ -185,29 +188,27 @@ export default function SaveVideoDialog({
 
 	async function handleSave() {
 		if (!audioFileName) {
-			setValidationMessage("Choose an audio file before starting the export.");
+			setValidationMessage(t("validationNoAudio"));
 			return;
 		}
 
 		if (!filePath && !fileHandle?.name) {
-			setValidationMessage(
-				"Choose a save location before starting the export.",
-			);
+			setValidationMessage(t("validationNoLocation"));
 			return;
 		}
 
 		if (totalDuration < MIN_EXPORT_DURATION) {
-			setValidationMessage("Audio must be at least 5 seconds long.");
+			setValidationMessage(t("validationAudioShort"));
 			return;
 		}
 
 		if (selectedEndTime <= selectedStartTime) {
-			setValidationMessage("End time must be later than start time.");
+			setValidationMessage(t("validationEndBeforeStart"));
 			return;
 		}
 
 		if (selectedEndTime - selectedStartTime < MIN_EXPORT_DURATION) {
-			setValidationMessage("Time duration must be at least 5 seconds.");
+			setValidationMessage(t("validationDurationShort"));
 			return;
 		}
 
@@ -240,7 +241,7 @@ export default function SaveVideoDialog({
 				<section className="space-y-2">
 					<div className="flex items-center justify-between gap-3">
 						<h3 className="text-sm font-medium text-neutral-100">
-							Audio source
+							{t("audioSource")}
 						</h3>
 						<Button
 							variant="outline"
@@ -248,14 +249,14 @@ export default function SaveVideoDialog({
 							disabled={isSubmitting || isChoosingAudio}
 							onClick={handleChooseAudio}
 						>
-							{isChoosingAudio ? "Choosing..." : "Choose"}
+							{isChoosingAudio ? tc("choosing") : tc("choose")}
 						</Button>
 					</div>
 					<input
 						type="text"
 						readOnly
 						value={audioFileName}
-						placeholder="No audio file selected"
+						placeholder={t("noAudioSelected")}
 						className="w-full rounded border border-border-input bg-neutral-900 px-3 py-2 font-mono text-xs text-neutral-300 outline-none placeholder:text-neutral-500"
 					/>
 				</section>
@@ -263,7 +264,7 @@ export default function SaveVideoDialog({
 				<section className="space-y-2">
 					<div className="flex items-center justify-between gap-3">
 						<h3 className="text-sm font-medium text-neutral-100">
-							Save location
+							{t("saveLocation")}
 						</h3>
 						<Button
 							variant="outline"
@@ -271,21 +272,21 @@ export default function SaveVideoDialog({
 							disabled={isSubmitting || isChoosingLocation}
 							onClick={handleChooseLocation}
 						>
-							{isChoosingLocation ? "Choosing..." : "Choose"}
+							{isChoosingLocation ? tc("choosing") : tc("choose")}
 						</Button>
 					</div>
 					<input
 						type="text"
 						readOnly
 						value={filePath}
-						placeholder="No video file selected"
+						placeholder={t("noVideoSelected")}
 						className="w-full rounded border border-border-input bg-neutral-900 px-3 py-2 font-mono text-xs text-neutral-300 outline-none"
 					/>
 				</section>
 
 				<section className="space-y-3">
 					<h3 className="text-sm font-medium text-neutral-100">
-						Time duration
+						{t("timeDuration")}
 					</h3>
 					<div className="grid grid-cols-2 gap-4 max-[520px]:grid-cols-1">
 						<div className="flex flex-col gap-1.5">
@@ -293,7 +294,7 @@ export default function SaveVideoDialog({
 								htmlFor="video-export-start-time"
 								className="block text-xs uppercase tracking-wide text-neutral-400"
 							>
-								Start
+								{t("start")}
 							</label>
 							<TimeInput
 								name="startTime"
@@ -318,7 +319,7 @@ export default function SaveVideoDialog({
 								htmlFor="video-export-end-time"
 								className="block text-xs uppercase tracking-wide text-neutral-400"
 							>
-								End
+								{t("end")}
 							</label>
 							<TimeInput
 								name="endTime"
@@ -363,7 +364,7 @@ export default function SaveVideoDialog({
 							htmlFor="video-export-include-audio"
 							className="text-sm text-neutral-100"
 						>
-							Include audio
+							{t("includeAudio")}
 						</label>
 						<Switch
 							id="video-export-include-audio"
@@ -388,7 +389,7 @@ export default function SaveVideoDialog({
 						disabled={isSubmitting || isChoosingLocation}
 						onClick={handleSave}
 					>
-						{isSubmitting ? "Starting..." : "Save video"}
+						{isSubmitting ? t("starting") : t("saveVideo")}
 					</Button>
 					<Button
 						variant="outline"
@@ -396,7 +397,7 @@ export default function SaveVideoDialog({
 						disabled={isSubmitting}
 						onClick={handleCancel}
 					>
-						Cancel
+						{tc("cancel")}
 					</Button>
 				</DialogFooter>
 			</div>

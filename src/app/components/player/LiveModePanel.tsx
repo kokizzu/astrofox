@@ -8,9 +8,11 @@ import useAudioStore, {
 	setLiveInputMode,
 } from "@/app/actions/audio";
 import SelectInput from "@/app/components/inputs/SelectInput";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
 export default function LiveModePanel() {
+	const t = useTranslations("liveMode");
 	const {
 		loading,
 		liveInputMode,
@@ -22,11 +24,11 @@ export default function LiveModePanel() {
 	} = useAudioStore((state) => state);
 	const hasMidiInputs = midiInputs.length > 0;
 	const liveInputItems = [
-		{ id: "microphone", label: "Microphone" },
+		{ id: "microphone", label: t("microphone") },
 		...(desktopAudioSupported
-			? [{ id: "desktop", label: "Desktop Audio" }]
+			? [{ id: "desktop", label: t("desktopAudio") }]
 			: []),
-		{ id: "midi", label: "MIDI" },
+		{ id: "midi", label: t("midi") },
 	] as Array<Record<string, string>>;
 	const microphoneItems =
 		microphoneDevices.length > 0
@@ -34,14 +36,14 @@ export default function LiveModePanel() {
 					id: device.id,
 					label: device.label,
 				}))
-			: [{ id: "", label: "No microphones found" }];
+			: [{ id: "", label: t("noMicrophonesFound") }];
 	const midiItems =
 		midiInputs.length > 0
 			? midiInputs.map((input) => ({
 					id: input.id,
 					label: input.label,
 				}))
-			: [{ id: "", label: "No MIDI inputs found" }];
+			: [{ id: "", label: t("noMidiInputsFound") }];
 
 	useEffect(() => {
 		void refreshInputOptions();
@@ -105,7 +107,7 @@ export default function LiveModePanel() {
 					disabled={loading || !desktopAudioSupported}
 					onClick={() => void connectDesktopAudio()}
 				>
-					Capture Desktop Audio
+					{t("captureDesktopAudio")}
 				</button>
 			)}
 
@@ -128,7 +130,7 @@ export default function LiveModePanel() {
 						disabled={loading || !hasMidiInputs}
 						onClick={() => void connectMidiInput()}
 					>
-						Connect
+						{t("connect")}
 					</button>
 				</>
 			)}

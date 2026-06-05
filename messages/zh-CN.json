@@ -1,0 +1,137 @@
+{
+	"common": {
+		"ok": "确定",
+		"cancel": "取消",
+		"close": "关闭",
+		"yes": "是",
+		"no": "否",
+		"save": "保存",
+		"delete": "删除",
+		"create": "创建",
+		"open": "打开",
+		"refresh": "刷新",
+		"rename": "重命名",
+		"choose": "选择",
+		"choosing": "选择中...",
+		"loading": "加载中..."
+	},
+	"panels": {
+		"layers": "图层",
+		"reactors": "反应器",
+		"controls": "控件",
+		"addScene": "添加场景",
+		"addReactor": "添加反应器"
+	},
+	"titleBar": {
+		"hideLayersPanel": "隐藏图层和反应器面板",
+		"showLayersPanel": "显示图层和反应器面板",
+		"hidePlayerPanel": "隐藏播放器和反应器面板",
+		"showPlayerPanel": "显示播放器和反应器面板",
+		"hideControlsPanel": "隐藏控件面板",
+		"showControlsPanel": "显示控件面板"
+	},
+	"player": {
+		"recording": "录制中...",
+		"play": "播放",
+		"pause": "暂停",
+		"stop": "停止",
+		"repeat": "循环",
+		"pauseLiveInput": "暂停实时输入",
+		"startLiveInput": "开始实时输入",
+		"stopLiveInput": "停止实时输入",
+		"connectMicrophone": "连接麦克风",
+		"captureDesktopAudio": "捕获桌面音频",
+		"connectMidi": "连接 MIDI 输入",
+		"loadAudio": "加载音频",
+		"noActiveInput": "无活动输入",
+		"stopRecording": "停止录制",
+		"enableInputMode": "启用输入模式",
+		"closeInputMode": "关闭输入模式",
+		"stopInput": "停止{mode}输入",
+		"startInput": "开始{mode}输入"
+	},
+	"canvasSettings": {
+		"projectTitle": "项目标题",
+		"format": "格式",
+		"size": "尺寸",
+		"output": "输出：{width} x {height}",
+		"backgroundColor": "背景颜色",
+		"square": "正方形",
+		"portrait916": "竖屏 (9:16)",
+		"landscape169": "横屏 (16:9)",
+		"mobilePortrait34": "移动竖屏 (3:4)",
+		"mobileLandscape43": "移动横屏 (4:3)"
+	},
+	"saveVideo": {
+		"audioSource": "音频源",
+		"noAudioSelected": "未选择音频文件",
+		"saveLocation": "保存位置",
+		"noVideoSelected": "未选择视频文件",
+		"timeDuration": "时间范围",
+		"start": "开始",
+		"end": "结束",
+		"includeAudio": "包含音频",
+		"saveVideo": "保存视频",
+		"starting": "启动中...",
+		"validationNoAudio": "请在开始导出前选择音频文件。",
+		"validationNoLocation": "请在开始导出前选择保存位置。",
+		"validationAudioShort": "音频时长至少需要 5 秒。",
+		"validationEndBeforeStart": "结束时间必须晚于开始时间。",
+		"validationDurationShort": "时间范围至少需要 5 秒。"
+	},
+	"about": {
+		"version": "版本 {version}",
+		"copyright": "版权所有 \u00a9 Mike Cao"
+	},
+	"projectBrowser": {
+		"projects": "项目",
+		"createNew": "新建项目",
+		"renameSelected": "重命名所选",
+		"noProjects": "暂无项目。",
+		"confirmDelete": "删除"{name}"？此操作无法撤销。",
+		"failedToLoad": "加载项目失败。"
+	},
+	"relinkMedia": {
+		"allResolved": "所有媒体链接均已解析。",
+		"relinkMessage": "部分本地媒体文件无法自动加载。请重新链接每个源文件以正确渲染项目。",
+		"relink": "重新链接"
+	},
+	"unsavedChanges": {
+		"message": "关闭前是否保存项目更改？"
+	},
+	"menu": {
+		"newProject": "新建项目",
+		"openProject": "打开项目",
+		"saveProject": "保存项目",
+		"loadAudio": "加载音频",
+		"useMicrophone": "使用麦克风",
+		"useMidi": "使用 MIDI",
+		"saveImage": "保存图片",
+		"saveVideo": "保存视频",
+		"projectSettings": "项目设置"
+	},
+	"addMenu": {
+		"add2dDisplay": "添加 2D 显示",
+		"add3dDisplay": "添加 3D 显示",
+		"addEffect": "添加效果",
+		"category2d": "2D",
+		"category3d": "3D",
+		"categoryColor": "颜色",
+		"categoryBlurFocus": "模糊与聚焦",
+		"categoryDistortion": "扭曲",
+		"categoryPattern": "图案",
+		"categoryStylize": "风格化"
+	},
+	"liveMode": {
+		"microphone": "麦克风",
+		"desktopAudio": "桌面音频",
+		"midi": "MIDI",
+		"noMicrophonesFound": "未找到麦克风",
+		"noMidiInputsFound": "未找到 MIDI 输入",
+		"captureDesktopAudio": "捕获桌面音频",
+		"connect": "连接"
+	},
+	"reactorPanel": {
+		"closePanel": "关闭面板"
+	}
+}

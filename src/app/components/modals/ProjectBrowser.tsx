@@ -9,6 +9,7 @@ import useProject, {
 } from "@/app/actions/project";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
+import { useTranslations } from "next-intl";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -22,6 +23,8 @@ interface ProjectBrowserProps {
 }
 
 export default function ProjectBrowser({ onClose }: ProjectBrowserProps) {
+	const t = useTranslations("projectBrowser");
+	const tc = useTranslations("common");
 	const currentProjectId = useProject((state) => state.projectId);
 	const [projects, setProjects] = useState<Project[]>([]);
 	const [loading, setLoading] = useState(false);
@@ -47,11 +50,13 @@ export default function ProjectBrowser({ onClose }: ProjectBrowserProps) {
 					current || currentProjectId || items[0]?.id || null,
 			);
 		} catch (requestError: unknown) {
-			setError((requestError as Error)?.message || "Failed to load projects.");
+			setError(
+				(requestError as Error)?.message || t("failedToLoad"),
+			);
 		} finally {
 			setLoading(false);
 		}
-	}, [currentProjectId]);
+	}, [currentProjectId, t]);
 
 	useEffect(() => {
 		refreshProjects();
@@ -96,7 +101,7 @@ export default function ProjectBrowser({ onClose }: ProjectBrowserProps) {
 		}
 
 		const confirmed = window.confirm(
-			`Delete "${selectedProject.name}"? This cannot be undone.`,
+			t("confirmDelete", { name: selectedProject.name }),
 		);
 
 		if (!confirmed) {
@@ -112,7 +117,7 @@ export default function ProjectBrowser({ onClose }: ProjectBrowserProps) {
 			<div className="flex min-h-0 flex-1 gap-3 overflow-auto p-4">
 				<div className={"list-column flex-1 flex flex-col gap-2"}>
 					<div className={"text-sm font-bold uppercase opacity-[0.8]"}>
-						Projects
+						{t("projects")}
 					</div>
 					<div
 						className={
@@ -135,13 +140,13 @@ export default function ProjectBrowser({ onClose }: ProjectBrowserProps) {
 						))}
 						{!loading && projects.length === 0 && (
 							<div className={"opacity-[0.7] text-sm p-2"}>
-								No projects yet.
+								{t("noProjects")}
 							</div>
 						)}
 					</div>
 					<div className={"flex gap-1.5"}>
 						<Button variant="default" size="sm" onClick={refreshProjects}>
-							Refresh
+							{tc("refresh")}
 						</Button>
 						<Button
 							variant="default"
@@ -149,14 +154,14 @@ export default function ProjectBrowser({ onClose }: ProjectBrowserProps) {
 							disabled={!selectedId}
 							onClick={handleOpenProject}
 						>
-							Open
+							{tc("open")}
 						</Button>
 					</div>
 				</div>
 
 				<div className={"flex-1 flex flex-col gap-2"}>
 					<div className={"text-sm font-bold uppercase opacity-[0.8]"}>
-						Create New
+						{t("createNew")}
 					</div>
 					<input
 						type="text"
@@ -174,12 +179,12 @@ export default function ProjectBrowser({ onClose }: ProjectBrowserProps) {
 					/>
 					<div className={"flex gap-1.5"}>
 						<Button variant="default" size="sm" onClick={handleCreateProject}>
-							Create
+							{tc("create")}
 						</Button>
 					</div>
 
 					<div className={"text-sm font-bold uppercase opacity-[0.8]"}>
-						Rename Selected
+						{t("renameSelected")}
 					</div>
 					<input
 						type="text"
@@ -203,7 +208,7 @@ export default function ProjectBrowser({ onClose }: ProjectBrowserProps) {
 							disabled={!selectedId || !renameName.trim()}
 							onClick={handleRenameProject}
 						>
-							Rename
+							{tc("rename")}
 						</Button>
 						<Button
 							variant="default"
@@ -211,7 +216,7 @@ export default function ProjectBrowser({ onClose }: ProjectBrowserProps) {
 							disabled={!selectedId}
 							onClick={handleDeleteProject}
 						>
-							Delete
+							{tc("delete")}
 						</Button>
 					</div>
 				</div>
@@ -225,7 +230,7 @@ export default function ProjectBrowser({ onClose }: ProjectBrowserProps) {
 					)}
 					<DialogFooter className="sm:justify-end">
 						<Button variant="default" size="sm" onClick={onClose}>
-							Close
+							{tc("close")}
 						</Button>
 					</DialogFooter>
 				</div>

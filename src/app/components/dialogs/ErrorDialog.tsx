@@ -1,6 +1,7 @@
 import useError, { clearError } from "@/app/actions/error";
 import Dialog from "@/app/components/window/Dialog";
 import { Warning } from "@/app/icons";
+import { useTranslations } from "next-intl";
 import React from "react";
 
 interface ErrorDialogProps {
@@ -8,6 +9,7 @@ interface ErrorDialogProps {
 }
 
 export default function ErrorDialog({ onClose }: ErrorDialogProps) {
+	const tc = useTranslations("common");
 	const message = useError((state) => state.message);
 
 	function handleConfirm() {
@@ -19,7 +21,7 @@ export default function ErrorDialog({ onClose }: ErrorDialogProps) {
 		<Dialog
 			icon={Warning}
 			message={message ?? undefined}
-			buttons={["Ok"]}
+			buttons={[tc("ok")]}
 			onConfirm={handleConfirm}
 		/>
 	);

@@ -7,10 +7,12 @@ import useAppStore, {
 import useProject, { DEFAULT_PROJECT_NAME } from "@/app/actions/project";
 import { env } from "@/app/global";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 import { PanelBottom, PanelLeft, PanelRight } from "lucide-react";
 import React from "react";
 
 export default function TitleBar() {
+	const t = useTranslations("titleBar");
 	const isLeftPanelVisible = useAppStore((state) => state.isLeftPanelVisible);
 	const isBottomPanelVisible = useAppStore(
 		(state) => state.isBottomPanelVisible,
@@ -21,21 +23,27 @@ export default function TitleBar() {
 	const panelButtons = [
 		{
 			key: "left",
-			label: `${isLeftPanelVisible ? "Hide" : "Show"} layers and reactors panel`,
+			label: isLeftPanelVisible
+				? t("hideLayersPanel")
+				: t("showLayersPanel"),
 			isVisible: isLeftPanelVisible,
 			icon: PanelLeft,
 			onClick: toggleLeftPanelVisibility,
 		},
 		{
 			key: "bottom",
-			label: `${isBottomPanelVisible ? "Hide" : "Show"} player and reactor panel`,
+			label: isBottomPanelVisible
+				? t("hidePlayerPanel")
+				: t("showPlayerPanel"),
 			isVisible: isBottomPanelVisible,
 			icon: PanelBottom,
 			onClick: toggleBottomPanelVisibility,
 		},
 		{
 			key: "right",
-			label: `${isRightPanelVisible ? "Hide" : "Show"} controls panel`,
+			label: isRightPanelVisible
+				? t("hideControlsPanel")
+				: t("showControlsPanel"),
 			isVisible: isRightPanelVisible,
 			icon: PanelRight,
 			onClick: toggleRightPanelVisibility,

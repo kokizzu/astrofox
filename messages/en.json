@@ -1,0 +1,137 @@
+{
+	"common": {
+		"ok": "OK",
+		"cancel": "Cancel",
+		"close": "Close",
+		"yes": "Yes",
+		"no": "No",
+		"save": "Save",
+		"delete": "Delete",
+		"create": "Create",
+		"open": "Open",
+		"refresh": "Refresh",
+		"rename": "Rename",
+		"choose": "Choose",
+		"choosing": "Choosing...",
+		"loading": "Loading..."
+	},
+	"panels": {
+		"layers": "Layers",
+		"reactors": "Reactors",
+		"controls": "Controls",
+		"addScene": "Add scene",
+		"addReactor": "Add reactor"
+	},
+	"titleBar": {
+		"hideLayersPanel": "Hide layers and reactors panel",
+		"showLayersPanel": "Show layers and reactors panel",
+		"hidePlayerPanel": "Hide player and reactor panel",
+		"showPlayerPanel": "Show player and reactor panel",
+		"hideControlsPanel": "Hide controls panel",
+		"showControlsPanel": "Show controls panel"
+	},
+	"player": {
+		"recording": "Recording...",
+		"play": "Play",
+		"pause": "Pause",
+		"stop": "Stop",
+		"repeat": "Repeat",
+		"pauseLiveInput": "Pause live input",
+		"startLiveInput": "Start live input",
+		"stopLiveInput": "Stop live input",
+		"connectMicrophone": "Connect microphone",
+		"captureDesktopAudio": "Capture desktop audio",
+		"connectMidi": "Connect MIDI input",
+		"loadAudio": "Load audio",
+		"noActiveInput": "No active input",
+		"stopRecording": "Stop recording",
+		"enableInputMode": "Enable input mode",
+		"closeInputMode": "Close input mode",
+		"stopInput": "Stop {mode} input",
+		"startInput": "Start {mode} input"
+	},
+	"canvasSettings": {
+		"projectTitle": "Project Title",
+		"format": "Format",
+		"size": "Size",
+		"output": "Output: {width} x {height}",
+		"backgroundColor": "Background Color",
+		"square": "Square",
+		"portrait916": "Portrait (9:16)",
+		"landscape169": "Landscape (16:9)",
+		"mobilePortrait34": "Mobile portrait (3:4)",
+		"mobileLandscape43": "Mobile landscape (4:3)"
+	},
+	"saveVideo": {
+		"audioSource": "Audio source",
+		"noAudioSelected": "No audio file selected",
+		"saveLocation": "Save location",
+		"noVideoSelected": "No video file selected",
+		"timeDuration": "Time duration",
+		"start": "Start",
+		"end": "End",
+		"includeAudio": "Include audio",
+		"saveVideo": "Save video",
+		"starting": "Starting...",
+		"validationNoAudio": "Choose an audio file before starting the export.",
+		"validationNoLocation": "Choose a save location before starting the export.",
+		"validationAudioShort": "Audio must be at least 5 seconds long.",
+		"validationEndBeforeStart": "End time must be later than start time.",
+		"validationDurationShort": "Time duration must be at least 5 seconds."
+	},
+	"about": {
+		"version": "Version {version}",
+		"copyright": "Copyright \u00a9 Mike Cao"
+	},
+	"projectBrowser": {
+		"projects": "Projects",
+		"createNew": "Create New",
+		"renameSelected": "Rename Selected",
+		"noProjects": "No projects yet.",
+		"confirmDelete": "Delete \"{name}\"? This cannot be undone.",
+		"failedToLoad": "Failed to load projects."
+	},
+	"relinkMedia": {
+		"allResolved": "All media links are resolved.",
+		"relinkMessage": "Some local media files could not be loaded automatically. Relink each source to render the project correctly.",
+		"relink": "Relink"
+	},
+	"unsavedChanges": {
+		"message": "Do you want to save project changes before closing?"
+	},
+	"menu": {
+		"newProject": "New project",
+		"openProject": "Open project",
+		"saveProject": "Save project",
+		"loadAudio": "Load audio",
+		"useMicrophone": "Use microphone",
+		"useMidi": "Use MIDI",
+		"saveImage": "Save image",
+		"saveVideo": "Save video",
+		"projectSettings": "Project settings"
+	},
+	"addMenu": {
+		"add2dDisplay": "Add 2D display",
+		"add3dDisplay": "Add 3D display",
+		"addEffect": "Add effect",
+		"category2d": "2D",
+		"category3d": "3D",
+		"categoryColor": "Color",
+		"categoryBlurFocus": "Blur & Focus",
+		"categoryDistortion": "Distortion",
+		"categoryPattern": "Pattern",
+		"categoryStylize": "Stylize"
+	},
+	"liveMode": {
+		"microphone": "Microphone",
+		"desktopAudio": "Desktop Audio",
+		"midi": "MIDI",
+		"noMicrophonesFound": "No microphones found",
+		"noMidiInputsFound": "No MIDI inputs found",
+		"captureDesktopAudio": "Capture Desktop Audio",
+		"connect": "Connect"
+	},
+	"reactorPanel": {
+		"closePanel": "Close panel"
+	}
+}
