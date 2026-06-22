@@ -85,7 +85,7 @@ export default class Player extends EventEmitter {
 	useDesktopAudio(
 		stream: MediaStream,
 		analyzerNode: AudioNode,
-		sourceLabel = "Desktop Audio",
+		sourceLabel = "",
 	) {
 		this.clearSource();
 
@@ -102,7 +102,7 @@ export default class Player extends EventEmitter {
 		this.emit("playback-change");
 	}
 
-	useMidi(sourceLabel = "MIDI input") {
+	useMidi(sourceLabel = "") {
 		this.clearSource();
 
 		this.mode = "midi";

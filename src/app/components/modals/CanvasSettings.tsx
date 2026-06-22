@@ -86,32 +86,32 @@ function getCanvasDimensions(
 }
 
 export default function CanvasSettings({ onClose }: CanvasSettingsProps) {
-	const { t } = useTranslation(undefined, { keyPrefix: "canvasSettings" });
+	const { t } = useTranslation(undefined, { keyPrefix: "canvas-settings" });
 	const { t: tc } = useTranslation(undefined, { keyPrefix: "common" });
-	const { t: tt } = useTranslation(undefined, { keyPrefix: "titleBar" });
+	const { t: tt } = useTranslation(undefined, { keyPrefix: "title-bar" });
 
 	const aspectOptions: AspectOption[] = [
 		{ label: t("square"), value: "1:1", widthRatio: 1, heightRatio: 1 },
 		{
-			label: t("portrait916"),
+			label: t("portrait-916"),
 			value: "9:16",
 			widthRatio: 9,
 			heightRatio: 16,
 		},
 		{
-			label: t("landscape169"),
+			label: t("landscape-169"),
 			value: "16:9",
 			widthRatio: 16,
 			heightRatio: 9,
 		},
 		{
-			label: t("mobilePortrait34"),
+			label: t("mobile-portrait-34"),
 			value: "3:4",
 			widthRatio: 3,
 			heightRatio: 4,
 		},
 		{
-			label: t("mobileLandscape43"),
+			label: t("mobile-landscape-43"),
 			value: "4:3",
 			widthRatio: 4,
 			heightRatio: 3,
@@ -120,7 +120,7 @@ export default function CanvasSettings({ onClose }: CanvasSettingsProps) {
 
 	const stageConfig = useStage((state) => state);
 	const projectName = useProject((state) => state.projectName);
-	const defaultProjectName = tt("defaultProjectName");
+	const defaultProjectName = tt("default-project-name");
 	const [state, setState] = useState({
 		projectName:
 			projectName && projectName !== DEFAULT_PROJECT_NAME
@@ -166,7 +166,7 @@ export default function CanvasSettings({ onClose }: CanvasSettingsProps) {
 					onChange={handleChange as (props: Record<string, unknown>) => void}
 				>
 					<Setting
-						label={t("projectTitle")}
+						label={t("project-title")}
 						type="text"
 						name="projectName"
 						value={draftProjectName}
@@ -201,7 +201,7 @@ export default function CanvasSettings({ onClose }: CanvasSettingsProps) {
 						</div>
 					</div>
 					<Setting
-						label={t("backgroundColor")}
+						label={t("background-color")}
 						type="color"
 						name="backgroundColor"
 						value={backgroundColor}

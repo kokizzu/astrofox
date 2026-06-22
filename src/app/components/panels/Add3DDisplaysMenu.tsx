@@ -6,11 +6,11 @@ interface Add3DDisplaysMenuProps {
 }
 
 export default function Add3DDisplaysMenu({ sceneId }: Add3DDisplaysMenuProps) {
-	const { t } = useTranslation(undefined, { keyPrefix: "addMenu" });
+	const { t } = useTranslation(undefined, { keyPrefix: "add-menu" });
 
 	const categories = [
 		{
-			label: t("category3d"),
+			label: t("category-3d"),
 			items: ["Geometry", "Tunnel", "Cubes", "Mesh Grid"],
 		},
 	];
@@ -20,7 +20,7 @@ export default function Add3DDisplaysMenu({ sceneId }: Add3DDisplaysMenuProps) {
 			sceneId={sceneId}
 			entityType="displays"
 			categories={categories}
-			ariaLabel={t("add3dDisplay")}
+			ariaLabel={t("add-3d-display")}
 		/>
 	);
 }

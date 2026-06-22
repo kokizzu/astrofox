@@ -16,7 +16,7 @@ export default function UnsavedChangesDialog({
 	action,
 	onClose,
 }: UnsavedChangesDialogProps) {
-	const { t } = useTranslation(undefined, { keyPrefix: "unsavedChanges" });
+	const { t } = useTranslation(undefined, { keyPrefix: "unsaved-changes" });
 	const { t: tc } = useTranslation(undefined, { keyPrefix: "common" });
 	const project = useProject((state) => state);
 

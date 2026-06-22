@@ -274,7 +274,7 @@ export default function AudioWaveform() {
 					tabIndex={hasAudio && !isVideoRecording ? 0 : -1}
 					role="button"
 					aria-disabled={!hasAudio || isVideoRecording}
-					aria-label={t("audioWaveformSeekBar")}
+					aria-label={t("audio-waveform-seek-bar")}
 					width={width}
 					height={height + shadowHeight}
 					onClick={handleClick}

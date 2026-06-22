@@ -6,23 +6,23 @@ interface AddEffectsMenuProps {
 }
 
 export default function AddEffectsMenu({ sceneId }: AddEffectsMenuProps) {
-	const { t } = useTranslation(undefined, { keyPrefix: "addMenu" });
+	const { t } = useTranslation(undefined, { keyPrefix: "add-menu" });
 
 	const categories = [
 		{
-			label: t("categoryColor"),
+			label: t("category-color"),
 			items: ["Color"],
 		},
 		{
-			label: t("categoryBlurFocus"),
+			label: t("category-blur-focus"),
 			items: ["Blur", "Bloom", "Depth of Field", "Tilt Shift"],
 		},
 		{
-			label: t("categoryDistortion"),
+			label: t("category-distortion"),
 			items: ["Distortion", "Glitch", "Kaleidoscope", "Mirror", "RGB Shift"],
 		},
 		{
-			label: t("categoryPattern"),
+			label: t("category-pattern"),
 			items: [
 				"ASCII",
 				"Color Halftone",
@@ -33,7 +33,7 @@ export default function AddEffectsMenu({ sceneId }: AddEffectsMenuProps) {
 			],
 		},
 		{
-			label: t("categoryStylize"),
+			label: t("category-stylize"),
 			items: ["Noise", "Perlin Noise", "Vignette"],
 		},
 	];
@@ -43,7 +43,7 @@ export default function AddEffectsMenu({ sceneId }: AddEffectsMenuProps) {
 			sceneId={sceneId}
 			entityType="effects"
 			categories={categories}
-			ariaLabel={t("addEffect")}
+			ariaLabel={t("add-effect")}
 		/>
 	);
 }

@@ -500,10 +500,10 @@ export default function DisplayTransformOverlay({
 		return null;
 	}
 
-	const resizeTopLabel = t("resizeTop");
-	const resizeRightLabel = t("resizeRight");
-	const resizeBottomLabel = t("resizeBottom");
-	const resizeLeftLabel = t("resizeLeft");
+	const resizeTopLabel = t("resize-top");
+	const resizeRightLabel = t("resize-right");
+	const resizeBottomLabel = t("resize-bottom");
+	const resizeLeftLabel = t("resize-left");
 
 	const frame = draftFrame;
 	const centerX = stageWidth / 2 + frame.x;
@@ -537,7 +537,7 @@ export default function DisplayTransformOverlay({
 				</div>
 				<button
 					type="button"
-					aria-label={t("moveLayer")}
+					aria-label={t("move-layer")}
 					className="absolute inset-[10px] cursor-move pointer-events-auto bg-transparent"
 					onPointerDown={startInteraction("move")}
 				/>
@@ -570,49 +570,49 @@ export default function DisplayTransformOverlay({
 						handle: "nw" as const,
 						className:
 							"left-0 top-0 -translate-x-1/2 -translate-y-1/2 cursor-nwse-resize",
-						label: t("resizeTopLeft"),
+						label: t("resize-top-left"),
 					},
 					{
 						handle: "ne" as const,
 						className:
 							"right-0 top-0 translate-x-1/2 -translate-y-1/2 cursor-nesw-resize",
-						label: t("resizeTopRight"),
+						label: t("resize-top-right"),
 					},
 					{
 						handle: "se" as const,
 						className:
 							"bottom-0 right-0 translate-x-1/2 translate-y-1/2 cursor-nwse-resize",
-						label: t("resizeBottomRight"),
+						label: t("resize-bottom-right"),
 					},
 					{
 						handle: "sw" as const,
 						className:
 							"bottom-0 left-0 -translate-x-1/2 translate-y-1/2 cursor-nesw-resize",
-						label: t("resizeBottomLeft"),
+						label: t("resize-bottom-left"),
 					},
 					{
 						handle: "n" as const,
 						className:
 							"left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 cursor-ns-resize",
-						label: t("resizeTopEdge"),
+						label: t("resize-top-edge"),
 					},
 					{
 						handle: "e" as const,
 						className:
 							"right-0 top-1/2 translate-x-1/2 -translate-y-1/2 cursor-ew-resize",
-						label: t("resizeRightEdge"),
+						label: t("resize-right-edge"),
 					},
 					{
 						handle: "s" as const,
 						className:
 							"bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 cursor-ns-resize",
-						label: t("resizeBottomEdge"),
+						label: t("resize-bottom-edge"),
 					},
 					{
 						handle: "w" as const,
 						className:
 							"left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize",
-						label: t("resizeLeftEdge"),
+						label: t("resize-left-edge"),
 					},
 				].map((item) => (
 					<button

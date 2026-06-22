@@ -79,7 +79,7 @@ interface ReactorControlProps {
 }
 
 const ReactorControl = ({ reactor }: ReactorControlProps) => {
-	const { t } = useTranslation(undefined, { keyPrefix: "reactorPanel" });
+	const { t } = useTranslation(undefined, { keyPrefix: "reactor-panel" });
 	const spectrum = useRef<CanvasBars | null>(null);
 	const meter = useRef<CanvasMeter | null>(null);
 	const spectrumCanvas = useRef<HTMLCanvasElement>(null);
@@ -229,7 +229,7 @@ const ReactorControl = ({ reactor }: ReactorControlProps) => {
 						sideOffset={6}
 						className="rounded bg-neutral-950 px-3 py-2 text-sm text-neutral-200 shadow-lg z-100"
 					>
-						{t("closePanel")}
+						{t("close-panel")}
 					</TooltipContent>
 				</Tooltip>
 			</TooltipProvider>

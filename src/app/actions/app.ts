@@ -21,7 +21,7 @@ import {
 	renderBackend,
 	renderer,
 } from "@/app/global";
-import i18n from "@/i18n/config";
+import { t } from "@/i18n/config";
 import Plugin from "@/lib/core/Plugin";
 import * as displays from "@/lib/displays";
 import * as effects from "@/lib/effects";
@@ -228,7 +228,7 @@ function getVideoRecordingSetup(): {
 	extension: string;
 } | null {
 	if (activeVideoRecorder && activeVideoRecorder.state === "recording") {
-		raiseError(i18n.t("errors.videoRecordingInProgress"));
+		raiseError(t("errors.video-recording-in-progress"));
 		return null;
 	}
 
@@ -236,21 +236,21 @@ function getVideoRecordingSetup(): {
 		typeof window === "undefined" ||
 		typeof window.MediaRecorder === "undefined"
 	) {
-		raiseError(i18n.t("errors.videoRecordingUnsupported"));
+		raiseError(t("errors.video-recording-unsupported"));
 		return null;
 	}
 
 	const canvas = renderBackend.getCanvas?.() as CaptureStreamCanvas | null;
 
 	if (!canvas || typeof canvas.captureStream !== "function") {
-		raiseError(i18n.t("errors.stageCanvasVideoAccessFailed"));
+		raiseError(t("errors.stage-canvas-video-access-failed"));
 		return null;
 	}
 
 	const mimeType = getSupportedVideoMimeType();
 
 	if (!mimeType) {
-		raiseError(i18n.t("errors.noSupportedVideoFormat"));
+		raiseError(t("errors.no-supported-video-format"));
 		return null;
 	}
 
@@ -317,7 +317,7 @@ export async function saveImage() {
 
 			logger.log("Image saved:", fileName);
 		} catch (error) {
-			raiseError(i18n.t("errors.saveImageFailed"), error);
+			raiseError(t("errors.save-image-failed"), error);
 		}
 	}
 }
@@ -341,7 +341,7 @@ export async function saveVideo() {
 
 	showModal(
 		"SaveVideoDialog",
-		{ titleKey: "saveVideo.saveVideo", showCloseButton: false },
+		{ titleKey: "save-video.save-video", showCloseButton: false },
 		{
 			fileHandle: null,
 			filePath: "",
@@ -409,14 +409,14 @@ export async function startVideoRecording({
 	}
 
 	if (!player.hasAudio()) {
-		raiseError(i18n.t("errors.chooseAudioBeforeSavingVideo"));
+		raiseError(t("errors.choose-audio-before-saving-video"));
 		return false;
 	}
 
 	const totalDuration = player.getDuration();
 
 	if (!Number.isFinite(totalDuration) || totalDuration <= 0) {
-		raiseError(i18n.t("errors.videoDurationFailed"));
+		raiseError(t("errors.video-duration-failed"));
 		return false;
 	}
 
@@ -424,7 +424,7 @@ export async function startVideoRecording({
 	const clampedEndTime = Math.min(totalDuration, endTime ?? totalDuration);
 
 	if (clampedEndTime <= clampedStartTime) {
-		raiseError(i18n.t("errors.videoEndBeforeStart"));
+		raiseError(t("errors.video-end-before-start"));
 		return false;
 	}
 
@@ -514,7 +514,7 @@ export async function startVideoRecording({
 		recorder.onerror = (event: Event & { error?: DOMException }) => {
 			recordingFailed = true;
 			cleanup();
-			raiseError(i18n.t("errors.recordVideoFailed"), event?.error || event);
+			raiseError(t("errors.record-video-failed"), event?.error || event);
 		};
 
 		recorder.onstop = async () => {
@@ -533,7 +533,7 @@ export async function startVideoRecording({
 
 				logger.log("Video saved:", fileName);
 			} catch (error) {
-				raiseError(i18n.t("errors.saveVideoFileFailed"), error);
+				raiseError(t("errors.save-video-file-failed"), error);
 			} finally {
 				cleanup();
 			}
@@ -571,28 +571,28 @@ export async function startVideoRecording({
 
 		activeVideoRecorder = null;
 		appStore.setState({ isVideoRecording: false });
-		raiseError(i18n.t("errors.startVideoRecordingFailed"), error);
+		raiseError(t("errors.start-video-recording-failed"), error);
 		return false;
 	}
 }
 
 export async function startStagePictureInPicture() {
 	if (!isStagePictureInPictureSupported()) {
-		raiseError(i18n.t("errors.pictureInPictureUnsupported"));
+		raiseError(t("errors.picture-in-picture-unsupported"));
 		return false;
 	}
 
 	const canvas = renderBackend.getCanvas?.() as CaptureStreamCanvas | null;
 
 	if (!canvas || typeof canvas.captureStream !== "function") {
-		raiseError(i18n.t("errors.stageCanvasPictureInPictureAccessFailed"));
+		raiseError(t("errors.stage-canvas-picture-in-picture-access-failed"));
 		return false;
 	}
 
 	const video = ensureStagePictureInPictureVideo();
 
 	if (!video) {
-		raiseError(i18n.t("errors.pictureInPictureInitFailed"));
+		raiseError(t("errors.picture-in-picture-init-failed"));
 		return false;
 	}
 
@@ -615,7 +615,7 @@ export async function startStagePictureInPicture() {
 		return true;
 	} catch (error) {
 		handleStagePictureInPictureLeave();
-		raiseError(i18n.t("errors.startPictureInPictureFailed"), error);
+		raiseError(t("errors.start-picture-in-picture-failed"), error);
 		return false;
 	}
 }
@@ -637,7 +637,7 @@ export async function stopStagePictureInPicture() {
 
 		return true;
 	} catch (error) {
-		raiseError(i18n.t("errors.closePictureInPictureFailed"), error);
+		raiseError(t("errors.close-picture-in-picture-failed"), error);
 		return false;
 	}
 }
@@ -728,7 +728,7 @@ export async function handleMenuAction(action: string) {
 
 		case "edit-canvas":
 			await showModal("CanvasSettings", {
-				titleKey: "menu.projectSettings",
+				titleKey: "menu.project-settings",
 				showCloseButton: false,
 			});
 			break;

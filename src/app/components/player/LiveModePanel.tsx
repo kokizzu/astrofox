@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 
 export default function LiveModePanel() {
-	const { t } = useTranslation(undefined, { keyPrefix: "liveMode" });
+	const { t } = useTranslation(undefined, { keyPrefix: "live-mode" });
 	const {
 		loading,
 		liveInputMode,
@@ -26,7 +26,7 @@ export default function LiveModePanel() {
 	const liveInputItems = [
 		{ id: "microphone", label: t("microphone") },
 		...(desktopAudioSupported
-			? [{ id: "desktop", label: t("desktopAudio") }]
+			? [{ id: "desktop", label: t("desktop-audio") }]
 			: []),
 		{ id: "midi", label: t("midi") },
 	] as Array<Record<string, string>>;
@@ -36,14 +36,14 @@ export default function LiveModePanel() {
 					id: device.id,
 					label: device.label,
 				}))
-			: [{ id: "", label: t("noMicrophonesFound") }];
+			: [{ id: "", label: t("no-microphones-found") }];
 	const midiItems =
 		midiInputs.length > 0
 			? midiInputs.map((input) => ({
 					id: input.id,
 					label: input.label,
 				}))
-			: [{ id: "", label: t("noMidiInputsFound") }];
+			: [{ id: "", label: t("no-midi-inputs-found") }];
 
 	useEffect(() => {
 		void refreshInputOptions();
@@ -107,7 +107,7 @@ export default function LiveModePanel() {
 					disabled={loading || !desktopAudioSupported}
 					onClick={() => void connectDesktopAudio()}
 				>
-					{t("captureDesktopAudio")}
+					{t("capture-desktop-audio")}
 				</button>
 			)}
 

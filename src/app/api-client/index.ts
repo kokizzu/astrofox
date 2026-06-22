@@ -1,7 +1,7 @@
 import EventEmitter from "@/lib/core/EventEmitter";
 import type { EventCallback } from "@/lib/types";
 import env from "@/app/env";
-import i18n from "@/i18n/config";
+import { t } from "@/i18n/config";
 import jsmediatags from "jsmediatags/dist/jsmediatags.min.js";
 
 const events = new EventEmitter();
@@ -53,7 +53,7 @@ function buildPickerTypes(
 	if (!filters.length) return undefined;
 
 	return filters.map((filter) => ({
-		description: filter.name || i18n.t("fileTypes.files"),
+		description: filter.name || t("file-types.files"),
 		accept: {
 			[filter.mimeType || "application/octet-stream"]: (
 				filter.extensions || []
@@ -158,7 +158,7 @@ export function send(channel: string, data?: unknown) {
 }
 
 export async function invoke() {
-	throw new Error(i18n.t("errors.ipcInvokeUnavailable"));
+	throw new Error(t("errors.ipc-invoke-unavailable"));
 }
 
 export function log(...args: unknown[]) {
@@ -226,7 +226,7 @@ export async function readAudioFile(file: File | FileHandle) {
 	const audioFile = await toFile(file);
 
 	if (!audioFile) {
-		throw new Error(i18n.t("errors.noAudioFileProvided"));
+		throw new Error(t("errors.no-audio-file-provided"));
 	}
 
 	let { type } = audioFile;
@@ -237,8 +237,8 @@ export async function readAudioFile(file: File | FileHandle) {
 
 	if (!/^audio/.test(type)) {
 		throw new Error(
-			i18n.t("errors.unrecognizedAudioType", {
-				type: type || i18n.t("common.unknown"),
+			t("errors.unrecognized-audio-type", {
+				type: type || t("common.unknown"),
 			}),
 		);
 	}
@@ -270,12 +270,12 @@ export async function readImageFile(file: File | FileHandle) {
 	const imageFile = await toFile(file);
 
 	if (!imageFile) {
-		throw new Error(i18n.t("errors.noImageFileProvided"));
+		throw new Error(t("errors.no-image-file-provided"));
 	}
 
 	return new Promise<string | ArrayBuffer | null>((resolve, reject) => {
 		const reader = new FileReader();
-		reader.onerror = () => reject(new Error(i18n.t("errors.readImageFileFailed")));
+		reader.onerror = () => reject(new Error(t("errors.read-image-file-failed")));
 		reader.onload = () => resolve(reader.result);
 		reader.readAsDataURL(imageFile);
 	});
@@ -285,16 +285,16 @@ export async function readVideoFile(file: File | FileHandle) {
 	const videoFile = await toFile(file);
 
 	if (!videoFile) {
-		throw new Error(i18n.t("errors.noVideoFileProvided"));
+		throw new Error(t("errors.no-video-file-provided"));
 	}
 
 	if (videoFile.type && !/^video/.test(videoFile.type)) {
-		throw new Error(i18n.t("errors.unrecognizedVideoType", { type: videoFile.type }));
+		throw new Error(t("errors.unrecognized-video-type", { type: videoFile.type }));
 	}
 
 	return new Promise<string | ArrayBuffer | null>((resolve, reject) => {
 		const reader = new FileReader();
-		reader.onerror = () => reject(new Error(i18n.t("errors.readVideoFileFailed")));
+		reader.onerror = () => reject(new Error(t("errors.read-video-file-failed")));
 		reader.onload = () => resolve(reader.result);
 		reader.readAsDataURL(videoFile);
 	});
@@ -345,7 +345,7 @@ export function getPlugins() {
 }
 
 export function spawnProcess() {
-	throw new Error(i18n.t("errors.processSpawningUnavailable"));
+	throw new Error(t("errors.process-spawning-unavailable"));
 }
 
 export function openDevTools() {}

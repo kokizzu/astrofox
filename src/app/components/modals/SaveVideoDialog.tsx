@@ -47,7 +47,7 @@ export default function SaveVideoDialog({
 	endTime = initialTotalDuration,
 	includeAudio = true,
 }: SaveVideoDialogProps) {
-	const { t } = useTranslation(undefined, { keyPrefix: "saveVideo" });
+	const { t } = useTranslation(undefined, { keyPrefix: "save-video" });
 	const { t: tc } = useTranslation(undefined, { keyPrefix: "common" });
 	const { t: te } = useTranslation(undefined, { keyPrefix: "errors" });
 	const [fileHandle, setFileHandle] = useState(initialFileHandle);
@@ -105,7 +105,7 @@ export default function SaveVideoDialog({
 			setSelectedEndTime(audio.duration);
 			setValidationMessage("");
 		} catch (error) {
-			raiseError(te("chooseAudioFileFailed"), error);
+			raiseError(te("choose-audio-file-failed"), error);
 		} finally {
 			setIsChoosingAudio(false);
 		}
@@ -122,7 +122,7 @@ export default function SaveVideoDialog({
 				setFilePath(selection.filePath || selection.defaultPath);
 			}
 		} catch (error) {
-			raiseError(te("chooseVideoSaveLocationFailed"), error);
+			raiseError(te("choose-video-save-location-failed"), error);
 		} finally {
 			setIsChoosingLocation(false);
 		}
@@ -189,27 +189,27 @@ export default function SaveVideoDialog({
 
 	async function handleSave() {
 		if (!audioFileName) {
-			setValidationMessage(t("validationNoAudio"));
+			setValidationMessage(t("validation-no-audio"));
 			return;
 		}
 
 		if (!filePath && !fileHandle?.name) {
-			setValidationMessage(t("validationNoLocation"));
+			setValidationMessage(t("validation-no-location"));
 			return;
 		}
 
 		if (totalDuration < MIN_EXPORT_DURATION) {
-			setValidationMessage(t("validationAudioShort"));
+			setValidationMessage(t("validation-audio-short"));
 			return;
 		}
 
 		if (selectedEndTime <= selectedStartTime) {
-			setValidationMessage(t("validationEndBeforeStart"));
+			setValidationMessage(t("validation-end-before-start"));
 			return;
 		}
 
 		if (selectedEndTime - selectedStartTime < MIN_EXPORT_DURATION) {
-			setValidationMessage(t("validationDurationShort"));
+			setValidationMessage(t("validation-duration-short"));
 			return;
 		}
 
@@ -242,7 +242,7 @@ export default function SaveVideoDialog({
 				<section className="space-y-2">
 					<div className="flex items-center justify-between gap-3">
 						<h3 className="text-sm font-medium text-neutral-100">
-							{t("audioSource")}
+							{t("audio-source")}
 						</h3>
 						<Button
 							variant="outline"
@@ -257,7 +257,7 @@ export default function SaveVideoDialog({
 						type="text"
 						readOnly
 						value={audioFileName}
-						placeholder={t("noAudioSelected")}
+						placeholder={t("no-audio-selected")}
 						className="w-full rounded border border-border-input bg-neutral-900 px-3 py-2 font-mono text-xs text-neutral-300 outline-none placeholder:text-neutral-500"
 					/>
 				</section>
@@ -265,7 +265,7 @@ export default function SaveVideoDialog({
 				<section className="space-y-2">
 					<div className="flex items-center justify-between gap-3">
 						<h3 className="text-sm font-medium text-neutral-100">
-							{t("saveLocation")}
+							{t("save-location")}
 						</h3>
 						<Button
 							variant="outline"
@@ -280,14 +280,14 @@ export default function SaveVideoDialog({
 						type="text"
 						readOnly
 						value={filePath}
-						placeholder={t("noVideoSelected")}
+						placeholder={t("no-video-selected")}
 						className="w-full rounded border border-border-input bg-neutral-900 px-3 py-2 font-mono text-xs text-neutral-300 outline-none"
 					/>
 				</section>
 
 				<section className="space-y-3">
 					<h3 className="text-sm font-medium text-neutral-100">
-						{t("timeDuration")}
+						{t("time-duration")}
 					</h3>
 					<div className="grid grid-cols-2 gap-4 max-[520px]:grid-cols-1">
 						<div className="flex flex-col gap-1.5">
@@ -365,7 +365,7 @@ export default function SaveVideoDialog({
 							htmlFor="video-export-include-audio"
 							className="text-sm text-neutral-100"
 						>
-							{t("includeAudio")}
+							{t("include-audio")}
 						</label>
 						<Switch
 							id="video-export-include-audio"
@@ -390,7 +390,7 @@ export default function SaveVideoDialog({
 						disabled={isSubmitting || isChoosingLocation}
 						onClick={handleSave}
 					>
-						{isSubmitting ? t("starting") : t("saveVideo")}
+						{isSubmitting ? t("starting") : t("save-video")}
 					</Button>
 					<Button
 						variant="outline"

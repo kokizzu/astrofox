@@ -118,7 +118,7 @@ export default function ImageInput({ name, value, onChange }: ImageInputProps) {
         sourcePath: sourcePath || "",
       });
     } catch (error) {
-      raiseError(te("invalidImageFile"), error);
+      raiseError(te("invalid-image-file"), error);
     }
   }
 
@@ -131,7 +131,7 @@ export default function ImageInput({ name, value, onChange }: ImageInputProps) {
   async function handleClick() {
     const { files, canceled } = await api.showOpenDialog({
       filters: [
-        { name: t("imageFiles"), extensions: ["jpg", "jpeg", "png", "gif"] },
+        { name: t("image-files"), extensions: ["jpg", "jpeg", "png", "gif"] },
       ],
     });
 
@@ -185,7 +185,7 @@ export default function ImageInput({ name, value, onChange }: ImageInputProps) {
               sideOffset={6}
               className="rounded bg-neutral-950 px-3 py-2 text-sm text-neutral-200 shadow-lg z-100"
             >
-              {t("openFile")}
+              {t("open-file")}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -208,7 +208,7 @@ export default function ImageInput({ name, value, onChange }: ImageInputProps) {
               sideOffset={6}
               className="rounded bg-neutral-950 px-3 py-2 text-sm text-neutral-200 shadow-lg z-100"
             >
-              {t("removeImage")}
+              {t("remove-image")}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

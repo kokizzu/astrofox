@@ -47,9 +47,7 @@ function labelKey(label: string) {
     .split(/\s+/)
     .filter(Boolean);
 
-  return words
-    .map((word, index) => (index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)))
-    .join('');
+  return words.join('-');
 }
 
 export function translateLabel(t: TFunction, label: unknown): string {

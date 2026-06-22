@@ -12,7 +12,7 @@ interface RelinkMediaDialogProps {
 }
 
 export default function RelinkMediaDialog({ onClose }: RelinkMediaDialogProps) {
-	const { t } = useTranslation(undefined, { keyPrefix: "relinkMedia" });
+	const { t } = useTranslation(undefined, { keyPrefix: "relink-media" });
 	const { t: tc } = useTranslation(undefined, { keyPrefix: "common" });
 	const mediaRefs = useProject(
 		(state) => state.unresolvedMediaRefs,
@@ -29,7 +29,7 @@ export default function RelinkMediaDialog({ onClose }: RelinkMediaDialogProps) {
 		return (
 			<div className="flex min-h-[14rem] min-w-[32rem] max-w-full flex-1 flex-col">
 				<div className="flex-1 p-4 text-sm opacity-[0.8]">
-					{t("allResolved")}
+					{t("all-resolved")}
 				</div>
 				<div className="shrink-0 bg-neutral-800 px-4 py-3">
 					<DialogFooter className="sm:justify-end">
@@ -46,7 +46,7 @@ export default function RelinkMediaDialog({ onClose }: RelinkMediaDialogProps) {
 		<div className="flex min-h-[16rem] min-w-[32rem] max-w-full flex-1 flex-col">
 			<div className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-auto p-4">
 				<div className={"text-sm opacity-[0.85]"}>
-					{t("relinkMessage")}
+					{t("relink-message")}
 				</div>
 				<div className={"flex flex-col gap-1.5"}>
 					{mediaRefs.map((ref) => (

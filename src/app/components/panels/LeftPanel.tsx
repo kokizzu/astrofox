@@ -60,7 +60,7 @@ export default function LeftPanel() {
 												sideOffset={6}
 												className="rounded bg-neutral-950 px-3 py-2 text-sm text-neutral-200 shadow-lg z-100"
 											>
-												{t("addScene")}
+												{t("add-scene")}
 											</TooltipContent>
 										</Tooltip>
 									</TooltipProvider>
@@ -83,7 +83,7 @@ export default function LeftPanel() {
 														type="button"
 														className="text-neutral-100 bg-neutral-900 min-h-6 min-w-6 text-center rounded inline-flex justify-center items-center cursor-default shrink-0 [&:hover]:bg-neutral-800"
 														onClick={handleAddReactor}
-														aria-label={t("addReactor")}
+														aria-label={t("add-reactor")}
 													/>
 												}
 											>
@@ -94,7 +94,7 @@ export default function LeftPanel() {
 												sideOffset={6}
 												className="rounded bg-neutral-950 px-3 py-2 text-sm text-neutral-200 shadow-lg z-100"
 											>
-												{t("addReactor")}
+												{t("add-reactor")}
 											</TooltipContent>
 										</Tooltip>
 									</TooltipProvider>

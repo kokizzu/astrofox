@@ -6,11 +6,11 @@ interface Add2DDisplaysMenuProps {
 }
 
 export default function Add2DDisplaysMenu({ sceneId }: Add2DDisplaysMenuProps) {
-	const { t } = useTranslation(undefined, { keyPrefix: "addMenu" });
+	const { t } = useTranslation(undefined, { keyPrefix: "add-menu" });
 
 	const categories = [
 		{
-			label: t("category2d"),
+			label: t("category-2d"),
 			items: [
 				"Text",
 				"Image",
@@ -30,7 +30,7 @@ export default function Add2DDisplaysMenu({ sceneId }: Add2DDisplaysMenuProps) {
 			sceneId={sceneId}
 			entityType="displays"
 			categories={categories}
-			ariaLabel={t("add2dDisplay")}
+			ariaLabel={t("add-2d-display")}
 		/>
 	);
 }

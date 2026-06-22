@@ -69,22 +69,22 @@ export default function PlayButtons() {
 				? playing
 					? mode === "file"
 						? t("pause")
-						: t("pauseLiveInput")
+						: t("pause-live-input")
 					: mode === "file"
 						? t("play")
-						: t("startLiveInput")
+						: t("start-live-input")
 				: mode === "microphone"
-					? t("connectMicrophone")
+					? t("connect-microphone")
 					: mode === "desktop"
-						? t("captureDesktopAudio")
+						? t("capture-desktop-audio")
 						: mode === "midi"
-							? t("connectMidi")
-							: t("loadAudio");
+							? t("connect-midi")
+							: t("load-audio");
 	const stopTitle = hasSource
 		? !liveModeEnabled || mode === "file"
 			? t("stop")
-			: t("stopLiveInput")
-		: t("noActiveInput");
+			: t("stop-live-input")
+		: t("no-active-input");
 
 	return (
 		<div className={"whitespace-nowrap"}>
@@ -154,7 +154,7 @@ export default function PlayButtons() {
 						sideOffset={6}
 						className="rounded bg-neutral-950 px-3 py-2 text-sm text-neutral-200 shadow-lg z-100"
 					>
-						{isVideoRecording ? t("stopRecording") : stopTitle}
+						{isVideoRecording ? t("stop-recording") : stopTitle}
 					</TooltipContent>
 				</Tooltip>
 			</TooltipProvider>

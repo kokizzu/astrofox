@@ -59,13 +59,13 @@ const ACTION_ICONS: Record<MenuAction, LucideIcon> = {
 };
 
 const ACTION_TRANSLATION_KEYS: Record<string, string> = {
-	"new-project": "newProject",
-	"open-project": "openProject",
-	"save-project": "saveProject",
-	"load-audio": "loadAudio",
-	"save-image": "saveImage",
-	"save-video": "saveVideo",
-	"edit-canvas": "projectSettings",
+	"new-project": "new-project",
+	"open-project": "open-project",
+	"save-project": "save-project",
+	"load-audio": "load-audio",
+	"save-image": "save-image",
+	"save-video": "save-video",
+	"edit-canvas": "project-settings",
 };
 
 const typedMenuConfig = menuConfig as MenuSection[];

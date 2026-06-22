@@ -23,7 +23,7 @@ export default function LiveModeToggle({
 	const liveModeEnabled = useAudioStore((state) => state.liveModeEnabled);
 	const action = mode || (liveModeEnabled ? "close" : "enable");
 	const enabling = action === "enable";
-	const label = enabling ? t("enableInputMode") : t("closeInputMode");
+	const label = enabling ? t("enable-input-mode") : t("close-input-mode");
 
 	return (
 		<TooltipProvider>

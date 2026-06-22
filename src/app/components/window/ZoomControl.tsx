@@ -11,8 +11,8 @@ import { useTranslation } from "react-i18next";
 export default function Zoom() {
 	const { t } = useTranslation(undefined, { keyPrefix: "zoom" });
 	const { width, height, zoom } = useStage((state) => state);
-	const canvasSizeLabel = t("resetZoomToCanvasSize", { width, height });
-	const zoomLevelLabel = t("zoomLevel", { zoom: ~~(zoom * 100) });
+	const canvasSizeLabel = t("reset-zoom-to-canvas-size", { width, height });
+	const zoomLevelLabel = t("zoom-level", { zoom: ~~(zoom * 100) });
 
 	return (
 		<div
@@ -32,7 +32,7 @@ export default function Zoom() {
 				variant="ghost"
 				size="sm"
 				className="w-8 h-7 text-sm bg-transparent text-inherit p-0 hover:bg-primary"
-				aria-label={t("zoomOut")}
+				aria-label={t("zoom-out")}
 				onClick={zoomOut}
 			>
 				{"\uff0d"}
@@ -54,7 +54,7 @@ export default function Zoom() {
 				variant="ghost"
 				size="sm"
 				className="w-8 h-7 text-sm bg-transparent text-inherit p-0 hover:bg-primary"
-				aria-label={t("zoomIn")}
+				aria-label={t("zoom-in")}
 				onClick={zoomIn}
 			>
 				{"\uff0b"}
@@ -62,7 +62,7 @@ export default function Zoom() {
 			<Button
 				variant="ghost"
 				className="w-12 h-7 text-center bg-transparent text-inherit p-0 hover:bg-transparent"
-				aria-label={t("fitToScreen")}
+				aria-label={t("fit-to-screen")}
 				onClick={fitToScreen}
 			>
 				{`${~~(zoom * 100)}%`}

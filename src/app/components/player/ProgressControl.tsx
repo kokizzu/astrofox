@@ -69,12 +69,12 @@ export default function ProgressControl() {
 	if (liveModeEnabled && !canSeek) {
 		const liveText =
 			mode === "microphone"
-				? sourceLabel || t("liveMicrophoneInput")
+				? sourceLabel || t("live-microphone-input")
 				: mode === "desktop"
-					? sourceLabel || t("liveDesktopAudio")
+					? sourceLabel || t("live-desktop-audio")
 					: mode === "midi"
-						? sourceLabel || t("liveMidiInput")
-						: t("chooseAudioOrLiveInput");
+						? sourceLabel || t("live-midi-input")
+						: t("choose-audio-or-live-input");
 
 		return (
 			<div className="flex flex-1 items-center">

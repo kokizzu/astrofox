@@ -23,11 +23,11 @@ interface ProjectBrowserProps {
 }
 
 export default function ProjectBrowser({ onClose }: ProjectBrowserProps) {
-	const { t } = useTranslation(undefined, { keyPrefix: "projectBrowser" });
+	const { t } = useTranslation(undefined, { keyPrefix: "project-browser" });
 	const { t: tc } = useTranslation(undefined, { keyPrefix: "common" });
-	const { t: tt } = useTranslation(undefined, { keyPrefix: "titleBar" });
+	const { t: tt } = useTranslation(undefined, { keyPrefix: "title-bar" });
 	const currentProjectId = useProject((state) => state.projectId);
-	const defaultProjectName = tt("defaultProjectName");
+	const defaultProjectName = tt("default-project-name");
 	const [projects, setProjects] = useState<Project[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -53,7 +53,7 @@ export default function ProjectBrowser({ onClose }: ProjectBrowserProps) {
 			);
 		} catch (requestError: unknown) {
 			setError(
-				(requestError as Error)?.message || t("failedToLoad"),
+				(requestError as Error)?.message || t("failed-to-load"),
 			);
 		} finally {
 			setLoading(false);
@@ -107,7 +107,7 @@ export default function ProjectBrowser({ onClose }: ProjectBrowserProps) {
 		}
 
 		const confirmed = window.confirm(
-			t("confirmDelete", { name: selectedProject.name }),
+			t("confirm-delete", { name: selectedProject.name }),
 		);
 
 		if (!confirmed) {
@@ -146,7 +146,7 @@ export default function ProjectBrowser({ onClose }: ProjectBrowserProps) {
 						))}
 						{!loading && projects.length === 0 && (
 							<div className={"opacity-[0.7] text-sm p-2"}>
-								{t("noProjects")}
+								{t("no-projects")}
 							</div>
 						)}
 					</div>
@@ -167,7 +167,7 @@ export default function ProjectBrowser({ onClose }: ProjectBrowserProps) {
 
 				<div className={"flex-1 flex flex-col gap-2"}>
 					<div className={"text-sm font-bold uppercase opacity-[0.8]"}>
-						{t("createNew")}
+						{t("create-new")}
 					</div>
 					<input
 						type="text"
@@ -190,7 +190,7 @@ export default function ProjectBrowser({ onClose }: ProjectBrowserProps) {
 					</div>
 
 					<div className={"text-sm font-bold uppercase opacity-[0.8]"}>
-						{t("renameSelected")}
+						{t("rename-selected")}
 					</div>
 					<input
 						type="text"

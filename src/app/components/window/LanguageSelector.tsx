@@ -13,7 +13,7 @@ import {
 import i18nInstance, { LANGUAGE_STORAGE_KEY, SUPPORTED_LANGUAGES } from '@/i18n/config';
 
 export default function LanguageSelector() {
-  const { t } = useTranslation(undefined, { keyPrefix: 'titleBar' });
+  const { t } = useTranslation(undefined, { keyPrefix: 'title-bar' });
   const [currentLng, setCurrentLng] = useState<string>(
     () => i18nInstance.resolvedLanguage ?? i18nInstance.language ?? 'en',
   );

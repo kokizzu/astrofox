@@ -12,31 +12,31 @@ import { env } from '@/app/global';
 import { Button } from '@/components/ui/button';
 
 export default function TitleBar() {
-  const { t } = useTranslation(undefined, { keyPrefix: 'titleBar' });
+  const { t } = useTranslation(undefined, { keyPrefix: 'title-bar' });
   const isLeftPanelVisible = useAppStore(state => state.isLeftPanelVisible);
   const isBottomPanelVisible = useAppStore(state => state.isBottomPanelVisible);
   const isRightPanelVisible = useAppStore(state => state.isRightPanelVisible);
   const projectName = useProject(state => state.projectName);
-  const title = projectName && projectName !== DEFAULT_PROJECT_NAME ? projectName : t('defaultProjectName');
+  const title = projectName && projectName !== DEFAULT_PROJECT_NAME ? projectName : t('default-project-name');
 
   const panelButtons = [
     {
       key: 'left',
-      label: isLeftPanelVisible ? t('hideLayersPanel') : t('showLayersPanel'),
+      label: isLeftPanelVisible ? t('hide-layers-panel') : t('show-layers-panel'),
       isVisible: isLeftPanelVisible,
       icon: PanelLeft,
       onClick: toggleLeftPanelVisibility,
     },
     {
       key: 'bottom',
-      label: isBottomPanelVisible ? t('hidePlayerPanel') : t('showPlayerPanel'),
+      label: isBottomPanelVisible ? t('hide-player-panel') : t('show-player-panel'),
       isVisible: isBottomPanelVisible,
       icon: PanelBottom,
       onClick: toggleBottomPanelVisibility,
     },
     {
       key: 'right',
-      label: isRightPanelVisible ? t('hideControlsPanel') : t('showControlsPanel'),
+      label: isRightPanelVisible ? t('hide-controls-panel') : t('show-controls-panel'),
       isVisible: isRightPanelVisible,
       icon: PanelRight,
       onClick: toggleRightPanelVisibility,

@@ -93,8 +93,8 @@ export default function LiveInputButton() {
 			)}
 			aria-label={
 				active
-					? t("stopInput", { mode: liveInputMode })
-					: t("startInput", { mode: liveInputMode })
+					? t("stop-input", { mode: liveInputMode })
+					: t("start-input", { mode: liveInputMode })
 			}
 			aria-pressed={active}
 			disabled={disabled}

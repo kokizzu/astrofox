@@ -105,7 +105,7 @@ export default function ReactorInput({
 						sideOffset={6}
 						className="rounded bg-neutral-950 px-3 py-2 text-sm text-neutral-200 shadow-lg z-100"
 					>
-						{t("disableReactor")}
+						{t("disable-reactor")}
 					</TooltipContent>
 				</Tooltip>
 			</TooltipProvider>

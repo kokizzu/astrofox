@@ -250,10 +250,10 @@ export default function Stage() {
 	}
 
 	const pictureInPictureLabel = isStagePictureInPictureActive
-		? t("closePictureInPicture")
-		: t("openPictureInPicture");
-	const layerTransformLabel = t("layerTransform");
-	const cameraControlLabel = t("cameraControl");
+		? t("close-picture-in-picture")
+		: t("open-picture-in-picture");
+	const layerTransformLabel = t("layer-transform");
+	const cameraControlLabel = t("camera-control");
 
 	return (
 		<div
