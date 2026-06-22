@@ -6,6 +6,7 @@ import de from '../../messages/de.json';
 import en from '../../messages/en.json';
 import es from '../../messages/es.json';
 import fr from '../../messages/fr.json';
+import ja from '../../messages/ja.json';
 import ko from '../../messages/ko.json';
 import vi from '../../messages/vi.json';
 import zhCN from '../../messages/zh-CN.json';
@@ -16,6 +17,7 @@ export const SUPPORTED_LANGUAGES = [
   { code: 'fr', label: 'Français' },
   { code: 'es', label: 'Español' },
   { code: 'de', label: 'Deutsch' },
+  { code: 'ja', label: '日本語' },
   { code: 'ko', label: '한국어' },
   { code: 'vi', label: 'Tiếng Việt' },
   { code: 'zh-CN', label: '简体中文' },
@@ -42,6 +44,7 @@ if (!i18n.isInitialized) {
       fr: { translation: fr },
       es: { translation: es },
       de: { translation: de },
+      ja: { translation: ja },
       ko: { translation: ko },
       vi: { translation: vi },
       'zh-CN': { translation: zhCN },
