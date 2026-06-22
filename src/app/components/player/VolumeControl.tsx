@@ -2,7 +2,7 @@ import useAudioStore from "@/app/actions/audio";
 import { RangeInput } from "@/app/components/inputs";
 import { player } from "@/app/global";
 import { Volume, Volume2, Volume3, Volume4 } from "@/app/icons";
-import classNames from "classnames";
+import { clsx as classNames } from "cnfast";
 import React, { useEffect, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 

@@ -14,7 +14,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type Display from "@/lib/core/Display";
-import classNames from "classnames";
+import { clsx as classNames } from "cnfast";
 import React from "react";
 
 interface ReactorButtonProps {

@@ -6,7 +6,7 @@ import {
 } from "@/app/components/inputs";
 import { Link } from "@/app/icons";
 import type Display from "@/lib/core/Display";
-import classNames from "classnames";
+import { clsx as classNames } from "cnfast";
 import type React from "react";
 
 interface OptionProps {

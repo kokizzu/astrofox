@@ -8,7 +8,7 @@ import {
 import type Display from "@/lib/core/Display";
 import { resolve } from "@/lib/utils/object";
 import { inputValueToProps } from "@/lib/utils/react";
-import classNames from "classnames";
+import { clsx as classNames } from "cnfast";
 import React from "react";
 import { useTranslation } from "react-i18next";
 

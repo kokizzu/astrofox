@@ -9,7 +9,7 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import classNames from "classnames";
+import { clsx as classNames } from "cnfast";
 import { useTranslation } from "react-i18next";
 import React, { useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";

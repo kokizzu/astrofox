@@ -1,4 +1,4 @@
-import classNames from "classnames";
+import { clsx as classNames } from "cnfast";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 

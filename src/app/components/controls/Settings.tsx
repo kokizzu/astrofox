@@ -1,6 +1,6 @@
 import { inputValueToProps, mapChildren } from "@/lib/utils/react";
 import Setting from "@/app/components/controls/Setting";
-import classNames from "classnames";
+import { clsx as classNames } from "cnfast";
 import type React from "react";
 import type { ReactElement } from "react";
 

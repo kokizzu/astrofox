@@ -9,7 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ignoreEvents } from "@/lib/utils/react";
-import classNames from "classnames";
+import { clsx as classNames } from "cnfast";
 import type React from "react";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";

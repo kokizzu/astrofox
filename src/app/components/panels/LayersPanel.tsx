@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/tooltip";
 import { reverse } from "@/lib/utils/array";
 import { getDisplayRenderGroup } from "@/lib/utils/displayRenderGroup";
-import classNames from "classnames";
+import { clsx as classNames } from "cnfast";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 

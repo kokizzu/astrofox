@@ -5,7 +5,7 @@ import useAudioStore, {
 } from "@/app/actions/audio";
 import { player } from "@/app/global";
 import useForceUpdate from "@/app/hooks/useForceUpdate";
-import classNames from "classnames";
+import { clsx as classNames } from "cnfast";
 import { useTranslation } from "react-i18next";
 import { Mic, Monitor } from "lucide-react";
 import { useEffect } from "react";

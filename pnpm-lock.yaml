@@ -32,6 +32,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      cnfast:
+        specifier: ^0.0.6
+        version: 0.0.6
       debug:
         specifier: ^4.3.1
         version: 4.4.3
@@ -1926,6 +1929,10 @@ packages:
   clsx@2.1.1:
     resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
     engines: {node: '>=6'}
+
+  cnfast@0.0.6:
+    resolution: {integrity: sha512-DM6Bp9MPE+LF8NRDt9TUA4ONgZXzQDrA6lsojn66LLKTXvZbBsuu9Q8Wu8y9zE9sMCVF82zxAvNMObDBVSyKCg==}
+    hasBin: true
 
   commander@7.2.0:
     resolution: {integrity: sha512-QrWXB+ZQSVPmIWIhtEO9H+gwHaMGYiF5ChvoJ+K9ZGHG/sVsa6yiesAD1GC/x46sET00Xlwo1u49RVVVzvcSkw==}
@@ -4321,6 +4328,8 @@ snapshots:
   client-only@0.0.1: {}
 
   clsx@2.1.1: {}
+
+  cnfast@0.0.6: {}
 
   commander@7.2.0: {}
 

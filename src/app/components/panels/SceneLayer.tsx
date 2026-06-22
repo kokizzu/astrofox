@@ -6,7 +6,7 @@ import { Cube, Picture, Square, Sun } from "@/app/icons";
 import { translateGeneratedName, translateLabel } from "@/i18n/labels";
 import { reverse } from "@/lib/utils/array";
 import { getDisplayRenderGroup } from "@/lib/utils/displayRenderGroup";
-import classNames from "classnames";
+import { clsx as classNames } from "cnfast";
 import type { LucideIcon } from "lucide-react";
 import type React from "react";
 import { useMemo } from "react";

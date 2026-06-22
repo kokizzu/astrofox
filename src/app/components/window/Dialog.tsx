@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
-import classNames from "classnames";
+import { clsx as classNames } from "cnfast";
 import type { LucideIcon } from "lucide-react";
 import React from "react";
 

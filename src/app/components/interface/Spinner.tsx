@@ -1,4 +1,4 @@
-import classNames from "classnames";
+import { clsx as classNames } from "cnfast";
 import React from "react";
 
 type SpinnerProps = {

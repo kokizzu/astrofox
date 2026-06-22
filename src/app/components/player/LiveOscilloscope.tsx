@@ -10,7 +10,7 @@ import {
 import WaveParser from "@/lib/audio/WaveParser";
 import CanvasWave from "@/lib/canvas/CanvasWave";
 import type { RenderFrameData } from "@/lib/types";
-import classNames from "classnames";
+import { clsx as classNames } from "cnfast";
 import { X } from "lucide-react";
 import React, { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";

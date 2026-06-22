@@ -3,7 +3,7 @@ import useAudioStore from "@/app/actions/audio";
 import { player } from "@/app/global";
 import useSharedState from "@/app/hooks/useSharedState";
 import CanvasAudio from "@/lib/canvas/CanvasAudio";
-import classNames from "classnames";
+import { clsx as classNames } from "cnfast";
 import type React from "react";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";

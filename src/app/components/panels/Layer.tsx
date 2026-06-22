@@ -1,6 +1,6 @@
 import TextInput from "@/app/components/inputs/TextInput";
 import { Eye, TrashEmpty } from "@/app/icons";
-import classNames from "classnames";
+import { clsx as classNames } from "cnfast";
 import type { LucideIcon } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
