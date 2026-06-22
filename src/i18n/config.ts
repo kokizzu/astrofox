@@ -2,12 +2,24 @@ import i18n from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
 
+import de from '../../messages/de.json';
 import en from '../../messages/en.json';
+import es from '../../messages/es.json';
+import fr from '../../messages/fr.json';
+import ko from '../../messages/ko.json';
+import vi from '../../messages/vi.json';
 import zhCN from '../../messages/zh-CN.json';
+import zhTW from '../../messages/zh-TW.json';
 
 export const SUPPORTED_LANGUAGES = [
   { code: 'en', label: 'English' },
+  { code: 'fr', label: 'Français' },
+  { code: 'es', label: 'Español' },
+  { code: 'de', label: 'Deutsch' },
+  { code: 'ko', label: '한국어' },
+  { code: 'vi', label: 'Tiếng Việt' },
   { code: 'zh-CN', label: '简体中文' },
+  { code: 'zh-TW', label: '繁體中文' },
 ] as const;
 
 export type LanguageCode = (typeof SUPPORTED_LANGUAGES)[number]['code'];
@@ -27,7 +39,13 @@ if (!i18n.isInitialized) {
   instance.init({
     resources: {
       en: { translation: en },
+      fr: { translation: fr },
+      es: { translation: es },
+      de: { translation: de },
+      ko: { translation: ko },
+      vi: { translation: vi },
       'zh-CN': { translation: zhCN },
+      'zh-TW': { translation: zhTW },
     },
     lng: isBrowser ? undefined : DEFAULT_LANGUAGE,
     fallbackLng: DEFAULT_LANGUAGE,
