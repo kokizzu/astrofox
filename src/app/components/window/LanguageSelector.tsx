@@ -1,6 +1,6 @@
 'use client';
 
-import { Globe } from 'lucide-react';
+import { Check, Globe } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
@@ -56,18 +56,18 @@ export default function LanguageSelector() {
       >
         <Globe size={16} />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" sideOffset={6}>
+      <DropdownMenuContent align="end" sideOffset={6} className="min-w-40">
         {SUPPORTED_LANGUAGES.map(lang => (
           <DropdownMenuItem
             key={lang.code}
             onClick={() => {
               void handleSelect(lang.code);
             }}
-            className={
-              currentLng === lang.code ? 'bg-accent text-accent-foreground' : undefined
-            }
           >
             {lang.label}
+            {currentLng === lang.code && (
+              <Check size={16} className="ml-auto" />
+            )}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
